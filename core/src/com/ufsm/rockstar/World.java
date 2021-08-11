@@ -23,7 +23,7 @@ public class World
 
     }
 
-    public Player getplayer() {
+    public Player getPlayer() {
 
         return player;
 
@@ -39,10 +39,8 @@ public class World
         player = new Player(new Vector2(7, 2));
 
         for (int i = 0; i < 10; i++) {
-            blocks.add(new Block(new Vector2(i, 0)));
-            blocks.add(new Block(new Vector2(i, 6)));
-            if (i > 2)
-                blocks.add(new Block(new Vector2(i, 1)));
+            blocks.add(new Block(new Vector2(i, 0),"Terra"));
+            blocks.add(new Block(new Vector2(i, 1),"Grama"));
         }
 
     }

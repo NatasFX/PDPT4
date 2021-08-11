@@ -8,7 +8,7 @@ public class Block
     static final float SIZE = 1f;
     Vector2  position = new Vector2();
     Rectangle  bounds = new Rectangle();
-
+    String name;
     public Vector2 getPosition()
     {
         return position;
@@ -17,9 +17,11 @@ public class Block
     {
         return bounds;
     }
+    public String getName(){ return name; }
 
-    public Block(Vector2 pos)
+    public Block(Vector2 pos,String name)
     {
+        this.name=name;
         this.position = pos;
         this.bounds.width = SIZE;
         this.bounds.height = SIZE;
