@@ -8,7 +8,7 @@ public class Player {
     {
         IDLE, WALKING
     }
-    static final float SPEED = 2f; // unit per second
+    public static final float SPEED = 2f; // unit per second
 
     static final float SIZE = 0.5f; // half a unit
 
@@ -26,6 +26,25 @@ public class Player {
         this.bounds.width = SIZE;
     }
 
+    public void update(float delta)
+    {
+        position.add(velocity.scl(delta));
+    }
+
+    public void setState(State newState){ this.state=newState; }
+    public void setFacingLeft(boolean facingLeft)
+    {
+        this.facingLeft=facingLeft;
+    }
+    public Vector2 getVelocity()
+    {
+        return velocity;
+    }
+
+    public Vector2 getAcceleration()
+    {
+        return acceleration;
+    }
     public Vector2 getPosition()
     {
         return position;

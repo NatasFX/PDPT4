@@ -24,7 +24,7 @@ public class WorldRenderer {
     private OrthographicCamera cam;
     ShapeRenderer debugRenderer = new ShapeRenderer();
     ShapeRenderer blockFailRenderer = new ShapeRenderer();
-    //private Texture playerTexture;
+    private Texture playerTexture;
     private Texture gramaTexture, terraTexture, CantoDTexture,CantoETexture, QuinaDTexture,QuinaETexture;
     private SpriteBatch spriteBatch;
     private boolean debug = false;
@@ -62,7 +62,7 @@ public class WorldRenderer {
 
     private void loadTextures() {
 
-        //playerTexture = new  Texture(Gdx.files.internal("images/bob_01.png"));
+        playerTexture = new  Texture(Gdx.files.internal("imagens/CantoDireito.png"));
 
         gramaTexture = new Texture(Gdx.files.internal("imagens/Grama.png"));
         terraTexture = new Texture(Gdx.files.internal("imagens/Terra.png"));
@@ -79,7 +79,7 @@ public class WorldRenderer {
         drawBackground();
         spriteBatch.begin();
         drawBlocks();
-        //drawPlayer();
+        drawPlayer();
         spriteBatch.end();
         if (debug)
             drawDebug();
@@ -115,7 +115,7 @@ public class WorldRenderer {
 
         Player player = world.getPlayer();
 
-        //spriteBatch.draw(playerTexture, player.getPosition().x * ppuX, player.getPosition().y * ppuY, player.SIZE * ppuX, player.SIZE * ppuY);
+        spriteBatch.draw(playerTexture, player.getPosition().x * ppuX, player.getPosition().y * ppuY, player.SIZE * ppuX, player.SIZE * ppuY);
 
     }
 
