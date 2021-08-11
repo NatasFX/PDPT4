@@ -2,6 +2,7 @@ package com.ufsm.rockstar;
 
 import com.badlogic.gdx.graphics.Color;
 
+import com.badlogic.gdx.graphics.g2d.TextureRegion;             ///PPRECISA DISSO AQUI TBM PRA ANIMAÇÃO
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.ufsm.rockstar.World;
@@ -9,6 +10,9 @@ import com.ufsm.rockstar.Player;
 import com.ufsm.rockstar.Block;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.Gdx;
+
+import com.badlogic.gdx.graphics.g2d.Animation;
+
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
@@ -24,7 +28,12 @@ public class WorldRenderer {
     private OrthographicCamera cam;
     ShapeRenderer debugRenderer = new ShapeRenderer();
     ShapeRenderer blockFailRenderer = new ShapeRenderer();
-    private Texture playerTexture;
+
+    private Texture playerTexture, dancarino;
+    TextureRegion[] framesDaAnimacao;       /////ESSAS DECLARAÇÃO AQUI ANIMAÇÃO
+    Animation animacao;
+    float tempoDecorrido;
+
     private Texture gramaTexture, terraTexture, CantoDTexture,CantoETexture, QuinaDTexture,QuinaETexture;
     private SpriteBatch spriteBatch;
     private boolean debug = false;
@@ -64,6 +73,10 @@ public class WorldRenderer {
 
         playerTexture = new  Texture(Gdx.files.internal("imagens/CantoDireito.png"));
 
+
+        dancarino = new Texture(Gdx.files.internal("imagens/dancando.png"));
+        criaAnimacao();                                                                // ESSES 2 ANIMAÇÃO
+
         gramaTexture = new Texture(Gdx.files.internal("imagens/Grama.png"));
         terraTexture = new Texture(Gdx.files.internal("imagens/Terra.png"));
         CantoDTexture = new Texture(Gdx.files.internal("imagens/CantoDireito.png"));
@@ -73,11 +86,30 @@ public class WorldRenderer {
 
     }
 
+    ////////////////////////ANIMAÇÃO//////////////////////
+    private void criaAnimacao()
+    {
+        TextureRegion[][] frames = TextureRegion.split(dancarino,95,81);
+        framesDaAnimacao = new TextureRegion[20];
+        int index = 0;
 
+        for (int i=0; i<5;i++)
+        {
+            for (int j=0;j<4;j++)
+            {
+                framesDaAnimacao[index++] = frames[j][i];
+            }
+        }
+
+        animacao = new Animation(1f/6f,framesDaAnimacao);
+    }
+    ///////////////ANIMAÇÃO////////////////////
 
     public void render() {
+        tempoDecorrido+= Gdx.graphics.getDeltaTime();           ///animação
         drawBackground();
         spriteBatch.begin();
+        spriteBatch.draw((TextureRegion) animacao.getKeyFrame(tempoDecorrido,true),300f,150f);      ////Animação
         drawBlocks();
         drawPlayer();
         spriteBatch.end();
@@ -140,5 +172,5 @@ public class WorldRenderer {
     }
 }
 
-
+// rockista dançarino https://www.spriters-resource.com/fullview/18936/
 //tileset que usei https://akumalab.itch.io/16x16-platform-rpg-tileset

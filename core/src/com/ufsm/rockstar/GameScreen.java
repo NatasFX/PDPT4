@@ -100,25 +100,12 @@ public class GameScreen implements Screen, InputProcessor
 
     @Override
     public boolean touchDown(int x, int y, int pointer, int button) {
-        if (x < width / 2 && y > height / 2) {
-            controller.leftPressed();
-        }
-        if (x > width / 2 && y > height / 2) {
-            controller.rightPressed();
-        }
-        return true;
+        return false;
     }
 
     @Override
     public boolean touchUp(int x, int y, int pointer, int button) {
-        if (x < width / 2 && y > height / 2) {
-            controller.leftReleased();
-        }
-        if (x > width / 2 && y > height / 2) {
-            controller.rightReleased();
-        }
-
-        return true;
+        return false;
     }
 
     @Override
