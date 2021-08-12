@@ -8,7 +8,7 @@ public class Player {
     {
         IDLE, WALKING
     }
-    public static final float SPEED = 4f; // unit per second
+    public static final float SPEED = 8f; // unit per second
 
     static final float SIZE = 3f; // half a unit
 
@@ -23,7 +23,7 @@ public class Player {
     {
         this.position = position;
         this.bounds.height = SIZE;
-        this.bounds.width = SIZE;
+        this.bounds.width =SIZE;
     }
 
     public void update(float delta)

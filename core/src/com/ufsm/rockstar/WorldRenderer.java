@@ -2,7 +2,9 @@ package com.ufsm.rockstar;
 
 import com.badlogic.gdx.graphics.Color;
 
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.TextureData;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;             ///PPRECISA DISSO AQUI TBM PRA ANIMAÇÃO
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -26,7 +28,7 @@ public class WorldRenderer {
     private static final float CAMERA_WIDTH = 20f;
     private static final float CAMERA_HEIGHT = 14f;
     private World world;
-    private int fase=0;
+    private int fase=0, faseAnterior=-1;
     private OrthographicCamera cam;
     ShapeRenderer debugRenderer = new ShapeRenderer();
     ShapeRenderer blockFailRenderer = new ShapeRenderer();
@@ -34,7 +36,9 @@ public class WorldRenderer {
     TextureRegion[] framesDaAnimacao;       /////ESSAS DECLARAÇÃO AQUI ANIMAÇÃO
     Animation animacao;
     float tempoDecorrido;
-    float opacidade=1;
+    float escurecedor=0;
+
+    BitmapFont font;
 
     private TextureRegion playerParado;
     private Texture playerTexture;
@@ -75,6 +79,8 @@ public class WorldRenderer {
         this.debug = debug;
         spriteBatch = new SpriteBatch();
 
+        font = new BitmapFont(Gdx.files.internal("imagens/bebas_100.fnt"), false);
+
         loadTextures();
     }
 
@@ -114,11 +120,14 @@ public class WorldRenderer {
     public void render()
     {
         tempoDecorrido+= Gdx.graphics.getDeltaTime();           ///animação
-        drawBackground();
         spriteBatch.begin();
         drawBlocks();
+        if(debug) {
+            font.draw(spriteBatch, fase+"" ,400,500);
+        }
         drawPlayer();
         spriteBatch.end();
+        drawBackground();
         if (debug)
             drawDebug();
     }
@@ -127,11 +136,12 @@ public class WorldRenderer {
     {
         debugRenderer.setProjectionMatrix(cam.combined);
         debugRenderer.begin(ShapeType.Filled);
+        Gdx.gl.glEnable(GL20.GL_BLEND);
         for (Block block : world.getBlocks()) {
             Rectangle rect = block.getBounds();
             float x1 = block.getPosition().x + rect.x;
             float y1 = block.getPosition().y + rect.y;
-            debugRenderer.setColor(new Color(0.78f, 0.69f, 0.545f, opacidade));
+            debugRenderer.setColor(new Color(0.78f+(escurecedor), 0.69f+(escurecedor), 0.545f+(escurecedor*1.5f), 0.4f));
             debugRenderer.rect(x1, y1, rect.width, rect.height);
         }
         debugRenderer.end();
@@ -162,9 +172,22 @@ public class WorldRenderer {
 
         if (player.getPosition().x*ppuX <= 0 && fase == 0)
             player.setPosition(0);
-        else if (player.getPosition().x*ppuX <= 0 && fase != 0)             // verifica se o personagem sai da tela pela esquerda
-            player.setPosition(20);
+        else if (player.getPosition().x*ppuX <= -40 && fase > 0)             // verifica se o personagem sai da tela pela esquerda
+        {
+            player.setPosition(19);                     //magica da programação não mudar
+            faseAnterior=fase;
             fase--;
+            escurecedor+=0.15f;
+        }
+
+        if (player.getPosition().x*ppuX >= 800)
+        {
+            player.setPosition(-1);
+            faseAnterior=fase;
+            fase++;
+            escurecedor-=0.15f;
+        }
+
     }
 
 
