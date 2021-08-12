@@ -26,6 +26,7 @@ public class WorldRenderer {
     private static final float CAMERA_WIDTH = 20f;
     private static final float CAMERA_HEIGHT = 14f;
     private World world;
+    private int fase=0;
     private OrthographicCamera cam;
     ShapeRenderer debugRenderer = new ShapeRenderer();
     ShapeRenderer blockFailRenderer = new ShapeRenderer();
@@ -33,6 +34,7 @@ public class WorldRenderer {
     TextureRegion[] framesDaAnimacao;       /////ESSAS DECLARAÇÃO AQUI ANIMAÇÃO
     Animation animacao;
     float tempoDecorrido;
+    float opacidade=1;
 
     private TextureRegion playerParado;
     private Texture playerTexture;
@@ -129,7 +131,7 @@ public class WorldRenderer {
             Rectangle rect = block.getBounds();
             float x1 = block.getPosition().x + rect.x;
             float y1 = block.getPosition().y + rect.y;
-            debugRenderer.setColor(new Color(0.78f, 0.69f, 0.545f, 1));
+            debugRenderer.setColor(new Color(0.78f, 0.69f, 0.545f, opacidade));
             debugRenderer.rect(x1, y1, rect.width, rect.height);
         }
         debugRenderer.end();
@@ -157,6 +159,12 @@ public class WorldRenderer {
             spriteBatch.draw((TextureRegion) animacao.getKeyFrame(tempoDecorrido,true), player.getPosition().x * ppuX, player.getPosition().y * ppuY, player.SIZE * ppuX, player.SIZE * ppuY);
         else
             spriteBatch.draw(playerParado, player.getPosition().x * ppuX, player.getPosition().y * ppuY, player.SIZE * ppuX, player.SIZE * ppuY);
+
+        if (player.getPosition().x*ppuX <= 0 && fase == 0)
+            player.setPosition(0);
+        else if (player.getPosition().x*ppuX <= 0 && fase != 0)             // verifica se o personagem sai da tela pela esquerda
+            player.setPosition(20);
+            fase--;
     }
 
 

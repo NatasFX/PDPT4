@@ -10,7 +10,7 @@ public class Player {
     }
     public static final float SPEED = 4f; // unit per second
 
-    static final float SIZE = 1.5f; // half a unit
+    static final float SIZE = 3f; // half a unit
 
     Vector2  position = new Vector2();
     Vector2  acceleration = new Vector2();
@@ -36,6 +36,8 @@ public class Player {
     {
         this.facingLeft=facingLeft;
     }
+    public void setPosition(int position){ this.position.x=position; }
+
     public State getState(){ return this.state; }
     public Vector2 getVelocity()
     {

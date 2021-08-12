@@ -13,6 +13,8 @@ public class World
 
     Player player;
 
+    String name;
+
 
 
     // Getters -----------
