@@ -25,7 +25,7 @@ public class GameScreen implements Screen, InputProcessor
     public void show()
     {
         world = new World();
-        renderer = new WorldRenderer(world,true);
+        renderer = new WorldRenderer(world,false);
         controller = new WorldController(world);
         Gdx.input.setInputProcessor(this);
     }

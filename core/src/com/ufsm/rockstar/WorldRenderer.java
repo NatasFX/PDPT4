@@ -145,6 +145,8 @@ public class WorldRenderer {
             debugRenderer.rect(x1, y1, rect.width, rect.height);
         }
         debugRenderer.end();
+
+
     }
 
     private void drawBlocks()
