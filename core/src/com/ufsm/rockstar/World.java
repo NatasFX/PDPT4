@@ -36,11 +36,13 @@ public class World
 
     private void createDemoWorld()
     {
-        player = new Player(new Vector2(7, 2));
+        player = new Player(new Vector2(1, 4));
 
         for (int i = 0; i < 20; i++) {
             blocks.add(new Block(new Vector2(i, 0),"Terra"));
-            blocks.add(new Block(new Vector2(i, 1),"Grama"));
+            blocks.add(new Block(new Vector2(i, 1),"Terra"));
+            blocks.add(new Block(new Vector2(i, 2),"Terra"));
+            blocks.add(new Block(new Vector2(i, 3),"Grama"));
         }
 
     }

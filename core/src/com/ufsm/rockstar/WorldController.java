@@ -8,7 +8,7 @@ import com.ufsm.rockstar.Player;
 import com.ufsm.rockstar.World;
 public class WorldController {
     enum Keys {
-        LEFT, RIGHT, JUMP, FIRE
+        LEFT, RIGHT
     }
     private World  world;
     private Player  player;

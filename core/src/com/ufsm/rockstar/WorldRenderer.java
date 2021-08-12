@@ -2,6 +2,7 @@ package com.ufsm.rockstar;
 
 import com.badlogic.gdx.graphics.Color;
 
+import com.badlogic.gdx.graphics.TextureData;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;             ///PPRECISA DISSO AQUI TBM PRA ANIMAÇÃO
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -22,19 +23,25 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 
 public class WorldRenderer {
-    private static final float CAMERA_WIDTH = 10f;
-    private static final float CAMERA_HEIGHT = 7f;
+    private static final float CAMERA_WIDTH = 20f;
+    private static final float CAMERA_HEIGHT = 14f;
     private World world;
     private OrthographicCamera cam;
     ShapeRenderer debugRenderer = new ShapeRenderer();
     ShapeRenderer blockFailRenderer = new ShapeRenderer();
 
-    private Texture playerTexture, dancarino;
     TextureRegion[] framesDaAnimacao;       /////ESSAS DECLARAÇÃO AQUI ANIMAÇÃO
     Animation animacao;
     float tempoDecorrido;
 
-    private Texture gramaTexture, terraTexture, CantoDTexture,CantoETexture, QuinaDTexture,QuinaETexture;
+    private TextureRegion playerParado;
+    private Texture playerTexture;
+    private Texture gramaTexture;
+    private Texture terraTexture;
+    private Texture CantoDTexture;
+    private Texture CantoETexture;
+    private Texture QuinaDTexture;
+    private Texture QuinaETexture;
     private SpriteBatch spriteBatch;
     private boolean debug = false;
     private int width;
@@ -42,7 +49,8 @@ public class WorldRenderer {
     private float ppuX; // pixels per unit on the X axis
     private float ppuY; // pixels per unit on the Y axis
 
-    public void setSize (int w, int h) {
+    public void setSize (int w, int h)
+    {
 
         this.width = w;
 
@@ -56,7 +64,8 @@ public class WorldRenderer {
 
 
 
-    public WorldRenderer(World world, boolean debug) {
+    public WorldRenderer(World world, boolean debug)
+    {
         this.world = world;
         this.cam = new OrthographicCamera(CAMERA_WIDTH, CAMERA_HEIGHT);
         this.cam.position.set(CAMERA_WIDTH / 2f, CAMERA_HEIGHT / 2f, 0);
@@ -69,13 +78,11 @@ public class WorldRenderer {
 
 
 
-    private void loadTextures() {
+    private void loadTextures()
+    {
 
-        playerTexture = new  Texture(Gdx.files.internal("imagens/CantoDireito.png"));
-
-
-        dancarino = new Texture(Gdx.files.internal("imagens/dancando.png"));
-        criaAnimacao();                                                                // ESSES 2 ANIMAÇÃO
+        playerTexture = new Texture(Gdx.files.internal("imagens/Player.png"));
+        criaAnimacao();                                                             // ESSES 2 ANIMAÇÃO
 
         gramaTexture = new Texture(Gdx.files.internal("imagens/Grama.png"));
         terraTexture = new Texture(Gdx.files.internal("imagens/Terra.png"));
@@ -89,27 +96,24 @@ public class WorldRenderer {
     ////////////////////////ANIMAÇÃO//////////////////////
     private void criaAnimacao()
     {
-        TextureRegion[][] frames = TextureRegion.split(dancarino,95,81);
-        framesDaAnimacao = new TextureRegion[20];
-        int index = 0;
+        TextureRegion[][] frames = TextureRegion.split(playerTexture,128,163);
+        framesDaAnimacao = new TextureRegion[8];
+        int index = 0, j=0;
 
-        for (int i=0; i<5;i++)
+        for (int i=0; i<8;i++)
         {
-            for (int j=0;j<4;j++)
-            {
-                framesDaAnimacao[index++] = frames[j][i];
-            }
+            framesDaAnimacao[index++] = frames[0][i];
         }
-
-        animacao = new Animation(1f/6f,framesDaAnimacao);
+        playerParado = new TextureRegion(framesDaAnimacao[0]);
+        animacao = new Animation(1f/8f,framesDaAnimacao);
     }
     ///////////////ANIMAÇÃO////////////////////
 
-    public void render() {
+    public void render()
+    {
         tempoDecorrido+= Gdx.graphics.getDeltaTime();           ///animação
         drawBackground();
         spriteBatch.begin();
-        spriteBatch.draw((TextureRegion) animacao.getKeyFrame(tempoDecorrido,true),300f,150f);      ////Animação
         drawBlocks();
         drawPlayer();
         spriteBatch.end();
@@ -131,8 +135,10 @@ public class WorldRenderer {
         debugRenderer.end();
     }
 
-    private void drawBlocks() {
-        for (Block block : world.getBlocks()) {
+    private void drawBlocks()
+    {
+        for (Block block : world.getBlocks())
+        {
             if (block.getName().equals("Grama"))
                 spriteBatch.draw(gramaTexture, block.getPosition().x * ppuX, block.getPosition().y * ppuY, Block.SIZE * ppuX, Block.SIZE * ppuY);
 
@@ -143,19 +149,23 @@ public class WorldRenderer {
 
 
 
-    private void drawPlayer() {
-
+    private void drawPlayer()
+    {
         Player player = world.getPlayer();
 
-        spriteBatch.draw(playerTexture, player.getPosition().x * ppuX, player.getPosition().y * ppuY, player.SIZE * ppuX, player.SIZE * ppuY);
-
+        if (player.getState() == Player.State.WALKING)
+            spriteBatch.draw((TextureRegion) animacao.getKeyFrame(tempoDecorrido,true), player.getPosition().x * ppuX, player.getPosition().y * ppuY, player.SIZE * ppuX, player.SIZE * ppuY);
+        else
+            spriteBatch.draw(playerParado, player.getPosition().x * ppuX, player.getPosition().y * ppuY, player.SIZE * ppuX, player.SIZE * ppuY);
     }
 
 
-    private void drawDebug() {
+    private void drawDebug()
+    {
         debugRenderer.setProjectionMatrix(cam.combined);
         debugRenderer.begin(ShapeType.Line);
-        for (Block block : world.getBlocks()) {
+        for (Block block : world.getBlocks())
+        {
             Rectangle rect = block.getBounds();
             float x1 = block.getPosition().x + rect.x;
             float y1 = block.getPosition().y + rect.y;
@@ -174,3 +184,4 @@ public class WorldRenderer {
 
 // rockista dançarino https://www.spriters-resource.com/fullview/18936/
 //tileset que usei https://akumalab.itch.io/16x16-platform-rpg-tileset
+//https://www.pngwing.com/pt/free-png-xkfra player

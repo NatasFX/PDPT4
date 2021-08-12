@@ -6,7 +6,8 @@ import com.ufsm.rockstar.UfsmRockstar;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {
-		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		new LwjglApplication(new UfsmRockstar(), config);
+		new LwjglApplication(new UfsmRockstar(), "UFSM ROCKSTAR", 800, 600);
+		//LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
+		//new LwjglApplication(new UfsmRockstar(), config);
 	}
 }
