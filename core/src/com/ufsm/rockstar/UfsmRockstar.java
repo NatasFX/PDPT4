@@ -11,6 +11,22 @@ import com.ufsm.rockstar.GameScreen;
 public class UfsmRockstar extends Game {
 	@Override
 	public void create() {
+        //setScreen(new WelcomeScreen());
 		setScreen(new GameScreen());
+	}
+
+	@Override
+	public void dispose() {
+		super.dispose();
+	}
+
+	@Override
+	public void render() {
+		super.render();
+	}
+
+	@Override
+	public void resize(int width, int height) {
+		super.resize(width, height);
 	}
 }
