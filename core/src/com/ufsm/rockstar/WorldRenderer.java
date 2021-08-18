@@ -79,7 +79,7 @@ public class WorldRenderer {
         this.debug = debug;
         spriteBatch = new SpriteBatch();
 
-        font = new BitmapFont(Gdx.files.internal("imagens/bebas_100.fnt"), false);
+        font = new BitmapFont(Gdx.files.internal("fonts/bebas_100.fnt"), false);
 
         loadTextures();
     }
