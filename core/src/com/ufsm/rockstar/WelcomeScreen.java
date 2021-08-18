@@ -114,7 +114,7 @@ class textWriter extends Thread {
     @Override
     public void run() {
         for (char r: str.toCharArray()) {
-            dormir(r == ' ' ? 250 : 80);
+            dormir(r == ' ' ? 200 : 80);
             System.out.println(""+r);
             tmp = tmp + r;
             cache.setText(tmp, 75, 525, 0, tmp.length(), 675, 75, true);
@@ -283,7 +283,7 @@ public class WelcomeScreen implements Screen, InputProcessor {
             draw3Dancarinos(HEIGHT/4);
 
 
-        if (Gdx.input.isTouched() && time > 1 && bgBrightness != .1f) {
+        if (Gdx.input.isTouched() && time > 15 && bgBrightness != .1f) {
             new textFader(this, 0, 10, "Carregando...").start();
             bgBrightness = .1f;
             music.setVolume(.07f);
