@@ -154,10 +154,10 @@ public class WorldRenderer {
         for (Block block : world.getBlocks())
         {
             if (block.getName().equals("Grama"))
-                spriteBatch.draw(gramaTexture, block.getPosition().x * ppuX, block.getPosition().y * ppuY, Block.SIZE * ppuX, Block.SIZE * ppuY);
+                spriteBatch.draw(gramaTexture, block.getPosition().x * ppuX, block.getPosition().y * ppuY, Block.SIZE * ppuX+10, Block.SIZE * ppuY);
 
             if (block.getName().equals("Terra"))
-                spriteBatch.draw(terraTexture, block.getPosition().x * ppuX, (block.getPosition().y * ppuY)+5, Block.SIZE * ppuX, Block.SIZE * ppuY);
+                spriteBatch.draw(terraTexture, block.getPosition().x * ppuX, (block.getPosition().y * ppuY)+5, Block.SIZE * ppuX+10, Block.SIZE * ppuY+10);
         }
     }
 

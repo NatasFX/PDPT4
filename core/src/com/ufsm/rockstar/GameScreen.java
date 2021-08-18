@@ -21,6 +21,13 @@ public class GameScreen implements Screen, InputProcessor
 
     private int width, height;
 
+    UfsmRockstar jogo;
+
+    public GameScreen(UfsmRockstar jogo)
+    {
+        this.jogo=jogo;
+    }
+
     @Override
     public void show()
     {

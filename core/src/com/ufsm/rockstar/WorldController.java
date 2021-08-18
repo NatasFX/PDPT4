@@ -8,7 +8,7 @@ import com.ufsm.rockstar.Player;
 import com.ufsm.rockstar.World;
 public class WorldController {
     enum Keys {
-        LEFT, RIGHT
+        LEFT, RIGHT, ENTER
     }
     private World  world;
     private Player  player;
@@ -23,7 +23,7 @@ public class WorldController {
         this.world = world;
         this.player = world.getPlayer();
     }
-
+    public void enterPressed() { keys.get(keys.put(Keys.ENTER, true)); }
     public void leftPressed() {
         keys.get(keys.put(Keys.LEFT, true));
     }
