@@ -9,7 +9,7 @@ public class utils {
 
     static public BitmapFont bigFont = new BitmapFont(Gdx.files.internal("fonts/bebas_100.fnt"), false);
     static public BitmapFont mediumFont = new BitmapFont(Gdx.files.internal("fonts/bebas_60.fnt"), false);
-    static public BitmapFont smallFont = new BitmapFont(Gdx.files.internal("fonts/bebas.fnt"), false);
+    static public BitmapFont smallFont = new BitmapFont(Gdx.files.internal("fonts/bebas_36.fnt"), false);
 
     public static float textWidth(BitmapFontCache cache) {
         float sum = 0;

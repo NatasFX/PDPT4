@@ -289,9 +289,8 @@ public class WelcomeScreen implements Screen, InputProcessor {
             music.setVolume(.07f);
             showDancarino = true;
             littleFontCache = utils.smallFont.newFontCache();
-            new textWriter("Bem-vindo jogador!\n"+"\n"+"Nesse jogo voce e um estudante, que pretende entrar na faculdade do ROCK, e para isso voce precisa passar no vestibular do rock.\n" +
-                    "\n" +
-                    "Pressione SPACE para o tutorial (recomendado)\n Pressione ENTER para ir para o jogo"
+            new textWriter("Bem-vindo jogador!\n\nNesse jogo você é um estudante, que pretende entrar na faculdade do ROCK, e para isso você precisa passar no vestibular do rock.\n" +
+                    "\nPressione SPACE para o tutorial (recomendado)\nPressione ENTER para ir para o jogo."
                     , littleFontCache).start();
         }
 
