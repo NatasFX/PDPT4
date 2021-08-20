@@ -12,7 +12,6 @@ public class UfsmRockstar extends Game {
 	@Override
 	public void create() {
         setScreen(new WelcomeScreen(this));
-		//setScreen(new GameScreen(this));
 	}
 
 	@Override

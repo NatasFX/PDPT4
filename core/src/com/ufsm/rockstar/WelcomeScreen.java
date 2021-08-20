@@ -2,8 +2,6 @@ package com.ufsm.rockstar;
 
 
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputAdapter;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
@@ -126,17 +124,9 @@ class textWriter extends Thread {
 
 }
 
-public class WelcomeScreen implements Screen, InputProcessor {
+public class WelcomeScreen implements Screen {
 
     UfsmRockstar jogo;
-    
-    @Override
-    public void show() {
-
-        Gdx.input.setInputProcessor(this);
-
-    }
-
 
     //screen stuff
     private Camera camera;      //the camera to gdx make their projections
@@ -209,7 +199,8 @@ public class WelcomeScreen implements Screen, InputProcessor {
 
     public WelcomeScreen(UfsmRockstar jogo) {
 
-        this.jogo=jogo;
+        this.jogo = jogo;
+
         camera = new OrthographicCamera();
         viewport = new StretchViewport(WIDTH, HEIGHT, camera);
 
@@ -297,6 +288,14 @@ public class WelcomeScreen implements Screen, InputProcessor {
         if (Gdx.input.isKeyPressed(Input.Keys.F9)) {
             debug = !debug;
         }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.ENTER)) {
+            jogo.setScreen(new GameScreen(jogo));           //se o cara pressionar o enter ele vai para o jogo pulando o tutorial
+            this.dispose();
+        } else if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+            //jogo.setScreen(new TutorialScreen(jogo));
+        }
+
     }
 
     @Override
@@ -317,55 +316,17 @@ public class WelcomeScreen implements Screen, InputProcessor {
 
     @Override
     public void hide() {
-        Gdx.input.setInputProcessor(null);
+
+    }
+
+    @Override
+    public void show() {
+
     }
 
     @Override
     public void dispose() {
-
-    }
-
-    @Override
-    public boolean keyDown(int keycode) {
-        if (keycode == Input.Keys.ENTER)
-            jogo.setScreen(new GameScreen(jogo));   //se o cara pressionar o enter ele vai para o jogo pulando o tutorial
-        if (keycode == Input.Keys.SPACE);
-            //jogo.setScreen(new TutorialScreen(jogo));
-        return true;
-    }
-
-    @Override
-    public boolean keyUp(int keycode) {
-        return false;
-    }
-
-    @Override
-    public boolean keyTyped(char character) {
-        return false;
-    }
-
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        return false;
-    }
-
-    @Override
-    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        return false;
-    }
-
-    @Override
-    public boolean touchDragged(int screenX, int screenY, int pointer) {
-        return false;
-    }
-
-    @Override
-    public boolean mouseMoved(int screenX, int screenY) {
-        return false;
-    }
-
-    @Override
-    public boolean scrolled(float amountX, float amountY) {
-        return false;
+        music.dispose();
+        shape.dispose();
     }
 }
