@@ -218,25 +218,12 @@ public class WelcomeScreen implements Screen {
 
         rewriteText("HNGAMES apresenta");
 
-        animacao = loadDancarino();
+        animacao = utils.loadDancarino();
 
         new textFader(this, 12000, 50, "Clique para continuar").start();
 
         shape = new ShapeRenderer();
     }
-
-    private Animation loadDancarino() {
-        TextureRegion[][] frames = TextureRegion.split(new Texture(Gdx.files.internal("sprites/dancando.png")),95,82);
-        Array framesDaAnimacao = new Array();
-
-        //matrix to 1d array
-        for (int i=0; i<5;i++)
-            for (int j=0;j<4;j++)
-                framesDaAnimacao.add(frames[j][i]);
-
-        return new Animation(1f/6f, framesDaAnimacao);
-    }
-
 
 
     @Override

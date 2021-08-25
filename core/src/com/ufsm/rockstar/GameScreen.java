@@ -78,6 +78,7 @@ public class GameScreen implements Screen, InputProcessor
 
     @Override
     public boolean keyDown(int keycode) {
+
         if (keycode == Keys.LEFT)
             controller.leftPressed();
 

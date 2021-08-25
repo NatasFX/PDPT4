@@ -86,21 +86,21 @@ public class Jogo implements Screen, InputProcessor {
 
 
         for (int i = 0; i < 5; i++) {
-            if (pressed(Input.Keys.H)) {
+            if (pressed(Input.Keys.G)) {
                 batch.draw(pads.get(0), 100, 25, 600, 340);
             }
-            if (pressed(Input.Keys.J)) {
+            if (pressed(Input.Keys.H)) {
                 batch.draw(pads.get(1), 100, 25, 600, 340);
             }
-            if (pressed(Input.Keys.K)) {
+            if (pressed(Input.Keys.J)) {
                 batch.draw(pads.get(2), 100, 25, 600, 340);
             }
-            if (pressed(Input.Keys.L)) {
+            if (pressed(Input.Keys.K)) {
                 batch.draw(pads.get(3), 100, 25, 600, 340);
             }
-//            if (pressed(Input.Keys.Cedilla)) {
-//                batch.draw(pads.get(1), 100, 25, 600, 340);
-//            }
+            if (pressed(Input.Keys.L)) {
+                batch.draw(pads.get(4), 100, 25, 600, 340);
+            }
 
         }
         batch.end();
