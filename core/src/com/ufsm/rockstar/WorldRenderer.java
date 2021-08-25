@@ -89,7 +89,7 @@ public class WorldRenderer {
     private void loadTextures()
     {
 
-        playerTexture = new Texture(Gdx.files.internal("imagens/Player.png"));
+        playerTexture = new Texture(Gdx.files.internal("sprites/Player.png"));
         criaAnimacao();                                                             // ESSES 2 ANIMAÇÃO
 
         gramaTexture = new Texture(Gdx.files.internal("imagens/Grama.png"));
