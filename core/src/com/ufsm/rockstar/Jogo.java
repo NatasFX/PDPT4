@@ -7,7 +7,6 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -22,7 +21,8 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-import sun.jvm.hotspot.debugger.cdbg.TemplateType;
+import java.io.DataInputStream;
+import java.io.IOException;
 
 
 public class Jogo implements Screen, InputProcessor {
@@ -37,6 +37,9 @@ public class Jogo implements Screen, InputProcessor {
 
     //música
     Music music;
+    int[][] musicSync;
+    int musicPos = 0;
+
 
     //pontos
     private int score = 0;
@@ -48,6 +51,7 @@ public class Jogo implements Screen, InputProcessor {
     TextureRegion[][] tiles;
     Texture pad3;
     Texture pad5;
+
 
     float[][] tilePositions; //primeira coordenada é de 0 a 4, significa os botoes
     //segunda coordenada é a quantidade de tiles dentro dessa linha, cada um é um float
@@ -62,12 +66,12 @@ public class Jogo implements Screen, InputProcessor {
 
     private void pressedPadAction(int padNumber) {
 
-        for (int j = 0; tilePositions[padNumber][j] != 0; j++) {
+        for (int j = 0; j < tilePositions[padNumber].length; j++) {
             float f = tilePositions[padNumber][j];
 
-            if (f == 0) break;
+//            if (f == 0) break;
 
-            else if (f > 55 && f < 70) {
+            if (f > 55 && f < 70) {
                 tilePositions[padNumber][j] = 0;
                 score++;
             }
@@ -76,9 +80,9 @@ public class Jogo implements Screen, InputProcessor {
 
     private void advanceTiles() {
         for (int i = 0; i < tilePositions.length; i++) {
-            for (int j = 0; j < tilePositions.length; j++) {
+            for (int j = 0; j < tilePositions[i].length; j++) {
                 if (tilePositions[i][j] > 0)
-                    tilePositions[i][j] +=.45;
+                    tilePositions[i][j] += .425;
 
                 if (tilePositions[i][j] >= 82) {
                     tilePositions[i][j] = 0;    //resetar se passou da borda da tela
@@ -89,7 +93,36 @@ public class Jogo implements Screen, InputProcessor {
         }
     }
 
-    public Jogo(UfsmRockstar jogo) {
+    private void addTile(int padPos) {
+        for (int i = 0; i < 32; i++)
+            if (tilePositions[padPos][i] == 0) {
+                tilePositions[padPos][i] = 1;
+                break;
+            }
+    }
+
+    private int[][] readTiles() {
+        int[][] times = new int[32768][2];
+        int pos = 0;
+        try {
+            DataInputStream in = new DataInputStream(Gdx.files.internal("timestamps").read());
+            try {
+                while (true){
+                    times[pos][0] = in.readInt();
+                    times[pos][1] = in.readInt();
+                    times[pos][1] = times[pos][1] == 3 ? 1 : times[pos][1];
+                    pos++;
+                }
+            } catch (IOException _) {
+            }
+            in.close();
+        } catch (IOException _) {
+        }
+
+        return times;
+    }
+
+    public Jogo(UfsmRockstar jogo){
         this.jogo = jogo;
 
         camera = new OrthographicCamera();
@@ -116,11 +149,12 @@ public class Jogo implements Screen, InputProcessor {
         pad3 = new Texture(Gdx.files.internal("imagens/middle_3.png"));
         pad5 = new Texture(Gdx.files.internal("imagens/outs_5.png"));
 
-        tilePositions = new float[5][128];
+        tilePositions = new float[5][32];
         tilePositions[0][0] = 1;
         tilePositions[1][0] = 1;
         tilePositions[2][0] = 1;
 
+        musicSync = readTiles();
     }
 
     @Override
@@ -131,8 +165,12 @@ public class Jogo implements Screen, InputProcessor {
     @Override
     public void render(float delta) {
         ScreenUtils.clear(c);
-
         advanceTiles();
+        if (music.getPosition()*1000 > musicSync[musicPos][0]-2100) {
+            addTile(musicSync[musicPos][1]);
+            musicPos++;
+        }
+
 
         batch.begin();
         batch.draw(pad5, 100, 25, 600, 340);
@@ -164,19 +202,23 @@ public class Jogo implements Screen, InputProcessor {
 
         //desenhar todos os tiles ativos
         for (int i = 0; i < 5; i++) {
-            for (int j = 0; tilePositions[i][j] != 0; j++) {
+            for (int j = 0; j < 32; j++) {
 
                 float d = tilePositions[i][j];
 
+                if (d == 0)
+                    continue;
+
+
                 switch (i) {
                     case 0:
-                        batch.draw(tiles[0][(int)(3-d/26)], 270-d*2.5f, 340-d*5, 75,36);
+                        batch.draw(tiles[0][(int)(2.9999-d/26)], 270-d*2.5f, 340-d*5, 75,36);
                         break;
                     case 1:
-                        batch.draw(tiles[1][(int)(3-d/26)], 310-d/.9f, 340-d*5, 75,36);
+                        batch.draw(tiles[1][(int)(2.9999-d/26)], 310-d/.9f, 340-d*5, 75,36);
                         break;
                     case 2:
-                        batch.draw(tiles[2][(int)(3-d/26)], 363, 340-d*5, 75,36 );
+                        batch.draw(tiles[2][(int)(2.9999-d/26)], 363, 340-d*5, 75,36 );
                         break;
                     case 3:
                         break;
