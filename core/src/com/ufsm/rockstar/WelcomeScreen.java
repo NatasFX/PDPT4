@@ -149,7 +149,6 @@ public class WelcomeScreen implements Screen {
 
     //texture stuff
     private SpriteBatch batch;  //sprite batches
-    private Texture background; //texture is for images and whatever
 
     //timing stuff
     float time = 0;
