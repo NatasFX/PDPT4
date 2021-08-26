@@ -44,9 +44,9 @@ public class utils {
         Array framesDaAnimacao = new Array();
 
         //matrix to 1d array
-        for (int i=0; i<5;i++)
-            for (int j=0;j<4;j++)
-                framesDaAnimacao.add(frames[j][i]);
+        for (int i=0; i<4;i++)
+            for (int j=0;j<5;j++)
+                framesDaAnimacao.add(frames[i][j]);
 
         return new Animation(1f/6f, framesDaAnimacao);
     }
