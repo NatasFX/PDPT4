@@ -43,6 +43,8 @@ public class Jogo implements Screen, InputProcessor {
 
     //pontos
     private int score = 0;
+    BitmapFont font;
+    BitmapFontCache fontCache;
 
     //animação
     Animation<TextureRegion> animacao;
@@ -68,8 +70,6 @@ public class Jogo implements Screen, InputProcessor {
 
         for (int j = 0; j < tilePositions[padNumber].length; j++) {
             float f = tilePositions[padNumber][j];
-
-//            if (f == 0) break;
 
             if (f > 55 && f < 70) {
                 tilePositions[padNumber][j] = 0;
@@ -133,7 +133,6 @@ public class Jogo implements Screen, InputProcessor {
         c = new Color();
 
         music = Gdx.audio.newMusic(Gdx.files.internal("music/here.mp3"));
-        music.play();
         music.setVolume(.5f);
 
         animacao = utils.loadDancarino();
@@ -155,6 +154,11 @@ public class Jogo implements Screen, InputProcessor {
         tilePositions[2][0] = 1;
 
         musicSync = readTiles();
+
+        font = utils.mediumFont;
+        fontCache = font.newFontCache();
+        fontCache.setText("Aperte ESPAÇO para tocar a música", 0,0);
+        fontCache.translate(WIDTH/2-utils.textWidth(fontCache)/2, HEIGHT/2+font.getCapHeight()/2);
     }
 
     @Override
@@ -165,16 +169,23 @@ public class Jogo implements Screen, InputProcessor {
     @Override
     public void render(float delta) {
         ScreenUtils.clear(c);
-        advanceTiles();
         if (music.getPosition()*1000 > musicSync[musicPos][0]-2100) {
+            //esse 2100 é o offset. por enquanto estático, mas se mudar a velocidade vai mudar isso tbm
             addTile(musicSync[musicPos][1]);
             musicPos++;
         }
+
+        advanceTiles();
 
 
         batch.begin();
         batch.draw(pad5, 100, 25, 600, 340);
         batch.draw(pad3, 100, 25, 600, 340);
+
+        if (pressed(Input.Keys.SPACE) && !music.isPlaying())
+            music.play();
+        else if (!music.isPlaying())
+            fontCache.draw(batch);
 
         //desenhar pad pressionado
         for (int i = 0; i < 5; i++) {
@@ -208,7 +219,6 @@ public class Jogo implements Screen, InputProcessor {
 
                 if (d == 0)
                     continue;
-
 
                 switch (i) {
                     case 0:
