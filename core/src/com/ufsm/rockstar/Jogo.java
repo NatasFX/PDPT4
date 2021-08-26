@@ -71,7 +71,7 @@ public class Jogo implements Screen, InputProcessor {
         for (int j = 0; j < tilePositions[padNumber].length; j++) {
             float f = tilePositions[padNumber][j];
 
-            if (f > 55 && f < 70) {
+            if (f > 50 && f < 70) {
                 tilePositions[padNumber][j] = 0;
                 score++;
             }
