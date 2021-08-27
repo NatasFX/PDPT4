@@ -43,6 +43,7 @@ public class Jogo implements Screen, InputProcessor {
 
     //pontos
     private int score = 0;
+    private int missedTiles = 0;
     BitmapFont font;
     BitmapFontCache fontCache;
 
@@ -86,7 +87,7 @@ public class Jogo implements Screen, InputProcessor {
 
                 if (tilePositions[i][j] >= 82) {
                     tilePositions[i][j] = 0;    //resetar se passou da borda da tela
-                    //colocar aqui a logica de quando perdeu o tile
+                    missedTiles++;
                 }
 
             }
@@ -169,7 +170,7 @@ public class Jogo implements Screen, InputProcessor {
     @Override
     public void render(float delta) {
         ScreenUtils.clear(c);
-        if (music.getPosition()*1000 > musicSync[musicPos][0]-2100) {
+        if (music.getPosition()*1000 > musicSync[musicPos][0]-2050) {
             //esse 2100 é o offset. por enquanto estático, mas se mudar a velocidade vai mudar isso tbm
             addTile(musicSync[musicPos][1]);
             musicPos++;
@@ -182,10 +183,16 @@ public class Jogo implements Screen, InputProcessor {
         batch.draw(pad5, 100, 25, 600, 340);
         batch.draw(pad3, 100, 25, 600, 340);
 
-        if (pressed(Input.Keys.SPACE) && !music.isPlaying())
+        if (pressed(Input.Keys.SPACE) && !music.isPlaying()) {
             music.play();
-        else if (!music.isPlaying())
+        }
+        else if (!music.isPlaying()) {
             fontCache.draw(batch);
+        } else {
+            utils.smallFont.draw(batch, "Pontos: " + score, 0, HEIGHT);
+            utils.smallFont.draw(batch, "Perdidos: " + missedTiles, 0, HEIGHT-27);
+            utils.smallFont.draw(batch, "Acertos: " + (int)(score/((score+missedTiles == 0f) ? 1f : score+missedTiles)*100) + "%", 0, HEIGHT-55);
+        }
 
         //desenhar pad pressionado
         for (int i = 0; i < 5; i++) {
