@@ -43,6 +43,7 @@ public class WorldRenderer {
     private TextureRegion playerParado;
     private Texture playerTexture;
     private Texture gramaTexture;
+    private Texture city;
     private Texture terraTexture;
     private Texture CantoDTexture;
     private Texture CantoETexture;
@@ -91,7 +92,7 @@ public class WorldRenderer {
 
         playerTexture = new Texture(Gdx.files.internal("sprites/Player.png"));
         criaAnimacao();                                                             // ESSES 2 ANIMAÇÃO
-
+        city = new Texture(Gdx.files.internal("imagens/16617.jpg"));
         gramaTexture = new Texture(Gdx.files.internal("imagens/Grama.png"));
         terraTexture = new Texture(Gdx.files.internal("imagens/Terra.png"));
         CantoDTexture = new Texture(Gdx.files.internal("imagens/CantoDireito.png"));
@@ -120,7 +121,9 @@ public class WorldRenderer {
     public void render()
     {
         tempoDecorrido+= Gdx.graphics.getDeltaTime();           ///animação
+
         spriteBatch.begin();
+        spriteBatch.draw(city,0,4*ppuY-10,800,500);
         drawBlocks();
         if(debug) {
             font.draw(spriteBatch, fase+"" ,400,500);
@@ -144,6 +147,9 @@ public class WorldRenderer {
             debugRenderer.setColor(new Color(0.78f+(escurecedor), 0.69f+(escurecedor), 0.545f+(escurecedor*1.5f), 0.4f));
             debugRenderer.rect(x1, y1, rect.width, rect.height);
         }
+        debugRenderer.setColor(new Color(0.78f+(escurecedor), 0.69f+(escurecedor), 0.545f+(escurecedor*1.5f), 0.4f));
+        debugRenderer.rect(ppuX*0, ppuY*4, 800, 500);
+
         debugRenderer.end();
 
 
@@ -214,7 +220,7 @@ public class WorldRenderer {
         debugRenderer.end();
     }
 }
-
+// city background <a href='https://www.freepik.com/vectors/background'>Background vector created by katemangostar - www.freepik.com</a>
 // rockista dançarino https://www.spriters-resource.com/fullview/18936/
 //tileset que usei https://akumalab.itch.io/16x16-platform-rpg-tileset
 //https://www.pngwing.com/pt/free-png-xkfra player
