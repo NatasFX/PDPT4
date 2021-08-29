@@ -1,5 +1,7 @@
 package com.ufsm.rockstar;
 
+import static java.lang.Math.abs;
+
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Input;
@@ -8,7 +10,9 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -32,6 +36,7 @@ public class Jogo implements Screen, InputProcessor {
     private Camera camera;      //the camera to gdx make their projections
     private Viewport viewport;  //our window to display the game
     private SpriteBatch batch;  //sprite batches
+    float elapsed = 0;
 
     Color c; //Background color
 
@@ -39,17 +44,24 @@ public class Jogo implements Screen, InputProcessor {
     Music music;
     int[][] musicSync;
     int musicPos = 0;
+    int totalTiles;
+    int[] remiss;
 
 
     //pontos
     private int score = 0;
     private int missedTiles = 0;
+    private int consecutivos = 0;
+
     BitmapFont font;
     BitmapFontCache fontCache;
 
     //animação
-    Animation<TextureRegion> animacao;
+    Animation<TextureRegion> bg;
+    Animation<Texture>[] padsAnim;
+    float[] timingsAnim;
 
+    //pads
     Array<Texture> pads;
     TextureRegion[][] tiles;
     Texture pad3;
@@ -63,6 +75,13 @@ public class Jogo implements Screen, InputProcessor {
     public static final int WIDTH = 800;
     public static final int HEIGHT = 600;
 
+    private void startGame() {
+        score = 0;
+        missedTiles = 0;
+        consecutivos = 0;
+        musicPos = 0;
+    }
+
     private boolean pressed(int keycode) {
         return Gdx.input.isKeyPressed(keycode);
     }
@@ -72,9 +91,20 @@ public class Jogo implements Screen, InputProcessor {
         for (int j = 0; j < tilePositions[padNumber].length; j++) {
             float f = tilePositions[padNumber][j];
 
-            if (f > 50 && f < 70) {
-                tilePositions[padNumber][j] = 0;
-                score++;
+            if (f > 50 && f < 65) {
+                tilePositions[padNumber][j] = 0;    //limpa o tile
+                score++;                            //aumenta o score
+                remiss[padNumber] = 1;              //reseta tempo de remiss
+                consecutivos += 1;                  //aumenta pontos consecutivos
+            } else {
+                if (remiss[padNumber]++ == 0) {
+                    //essa lógica de remiss é para evitar misses enormes ao pressionar o botão
+                    missedTiles++;
+                    consecutivos = 0;
+                } else if (remiss[padNumber] < 3500)
+                    remiss[padNumber]++;
+                else
+                    remiss[padNumber] = 0;
             }
         }
     }
@@ -88,6 +118,7 @@ public class Jogo implements Screen, InputProcessor {
                 if (tilePositions[i][j] >= 82) {
                     tilePositions[i][j] = 0;    //resetar se passou da borda da tela
                     missedTiles++;
+                    consecutivos = 0;
                 }
 
             }
@@ -106,12 +137,12 @@ public class Jogo implements Screen, InputProcessor {
         int[][] times = new int[32768][2];
         int pos = 0;
         try {
-            DataInputStream in = new DataInputStream(Gdx.files.internal("timestamps").read());
+            DataInputStream in = new DataInputStream(Gdx.files.internal("timestamps_here").read());
             try {
                 while (true){
+                    totalTiles += 1;
                     times[pos][0] = in.readInt();
                     times[pos][1] = in.readInt();
-                    times[pos][1] = times[pos][1] == 3 ? 1 : times[pos][1];
                     pos++;
                 }
             } catch (IOException _) {
@@ -119,6 +150,8 @@ public class Jogo implements Screen, InputProcessor {
             in.close();
         } catch (IOException _) {
         }
+
+        System.out.println("tiles lidos" + totalTiles);
 
         return times;
     }
@@ -136,30 +169,53 @@ public class Jogo implements Screen, InputProcessor {
         music = Gdx.audio.newMusic(Gdx.files.internal("music/here.mp3"));
         music.setVolume(.5f);
 
-        animacao = utils.loadDancarino();
+        //animacao = utils.loadDancarino();
 
         pads = new Array<Texture>();
 
         for (int i = 1; i <= 5; i++) {
-            pads.add(new Texture(Gdx.files.internal("imagens/" + i + ".png")));
+            pads.add(new Texture(Gdx.files.internal("imagens/" + i + ".png")));//, Pixmap.Format.valueOf("LuminanceAlpha"), false));
         }
 
         tiles = TextureRegion.split(new Texture(Gdx.files.internal("sprites/tiles.png")),25,12);
-
+        System.out.println(tiles.length+" lidos");
         pad3 = new Texture(Gdx.files.internal("imagens/middle_3.png"));
         pad5 = new Texture(Gdx.files.internal("imagens/outs_5.png"));
 
         tilePositions = new float[5][32];
-        tilePositions[0][0] = 1;
-        tilePositions[1][0] = 1;
-        tilePositions[2][0] = 1;
-
         musicSync = readTiles();
 
         font = utils.mediumFont;
         fontCache = font.newFontCache();
         fontCache.setText("Aperte ESPAÇO para tocar a música", 0,0);
         fontCache.translate(WIDTH/2-utils.textWidth(fontCache)/2, HEIGHT/2+font.getCapHeight()/2);
+
+        bg = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("imagens/bg.gif").read());
+
+        Array framesDaAnimacao0 = new Array();
+        Array framesDaAnimacao1 = new Array();
+        Array framesDaAnimacao2 = new Array();
+        Array framesDaAnimacao3 = new Array();
+        Array framesDaAnimacao4 = new Array();
+
+        for (int i = 0; i < 27; i++) {
+            framesDaAnimacao0.add(new Texture(Gdx.files.internal("imagens/0/0_0000" + String.format("%02d", i) + ".png")));
+            framesDaAnimacao1.add(new Texture(Gdx.files.internal("imagens/1/1_0000" + String.format("%02d", i) + ".png")));
+            framesDaAnimacao2.add(new Texture(Gdx.files.internal("imagens/2/2_0000" + String.format("%02d", i) + ".png")));
+            framesDaAnimacao3.add(new Texture(Gdx.files.internal("imagens/3/3_0000" + String.format("%02d", i) + ".png")));
+            framesDaAnimacao4.add(new Texture(Gdx.files.internal("imagens/4/4_0000" + String.format("%02d", i) + ".png")));
+        }
+
+        padsAnim = new Animation[5];
+
+        padsAnim[0] = new Animation(1f/60f, framesDaAnimacao0);
+        padsAnim[1] = new Animation(1f/60f, framesDaAnimacao1);
+        padsAnim[2] = new Animation(1f/60f, framesDaAnimacao2);
+        padsAnim[3] = new Animation(1f/60f, framesDaAnimacao3);
+        padsAnim[4] = new Animation(1f/60f, framesDaAnimacao4);
+
+        remiss = new int[5];
+        timingsAnim = new float[5];
     }
 
     @Override
@@ -170,53 +226,108 @@ public class Jogo implements Screen, InputProcessor {
     @Override
     public void render(float delta) {
         ScreenUtils.clear(c);
-        if (music.getPosition()*1000 > musicSync[musicPos][0]-2050) {
-            //esse 2100 é o offset. por enquanto estático, mas se mudar a velocidade vai mudar isso tbm
-            addTile(musicSync[musicPos][1]);
+        elapsed += delta;
+        timingsAnim[0] += delta;
+        timingsAnim[1] += delta;
+        timingsAnim[2] += delta;
+        timingsAnim[3] += delta;
+        timingsAnim[4] += delta;
+
+
+        if (music.getPosition()*1000 > abs(musicSync[musicPos][0]-2050) && musicPos < totalTiles-1) {
             musicPos++;
+            if (music.getPosition()*1000 < musicSync[musicPos][0]-2050) {
+                //System.out.println(musicSync.length);
+                //esse 2050 é o offset. por enquanto estático, mas se mudar a velocidade vai mudar isso tbm
+                addTile(musicSync[musicPos][1]);
+            }
         }
 
         advanceTiles();
 
-
         batch.begin();
+        batch.draw(bg.getKeyFrame(elapsed), 0f, 0f);
+
+
         batch.draw(pad5, 100, 25, 600, 340);
         batch.draw(pad3, 100, 25, 600, 340);
 
-        if (pressed(Input.Keys.SPACE) && !music.isPlaying()) {
+        if (pressed(Input.Keys.SPACE) && !music.isPlaying()) {  //usuário iniciou a música
             music.play();
-        }
-        else if (!music.isPlaying()) {
+            startGame();
+        } else if (!music.isPlaying()) {    //mostrar texto para usuário apertar espaço
             fontCache.draw(batch);
-        } else {
-            utils.smallFont.draw(batch, "Pontos: " + score, 0, HEIGHT);
-            utils.smallFont.draw(batch, "Perdidos: " + missedTiles, 0, HEIGHT-27);
-            utils.smallFont.draw(batch, "Acertos: " + (int)(score/((score+missedTiles == 0f) ? 1f : score+missedTiles)*100) + "%", 0, HEIGHT-55);
+        } else {        //usuário está jogando
+            utils.smallFont.draw(batch, "Pontos: " + score, 0, HEIGHT); //total de pontos
+            utils.smallFont.draw(batch, "Perdidos: " + missedTiles, 0, HEIGHT-27); //tiles perdidos
+            utils.smallFont.draw(   //desenho da porcentagem de acertos
+                    batch,
+                    "Acertos: "
+                    + (int)(score/((score+missedTiles == 0f) ? 1f : score+missedTiles)*100)
+                    + "%",
+                    0,
+                    HEIGHT-55
+            );
+            utils.smallFont.draw(   //desenho do tempo decorrido
+                    batch,
+                    "Tempo: " + String.format("%02d",
+                    (int) music.getPosition()/60) + ":"
+                    + String.format("%02d", (int)music.getPosition()%60),
+                    0,
+                    HEIGHT-82
+            );
+            utils.smallFont.draw(batch, "Pontos consecutivos: " + consecutivos, 0, HEIGHT-109); //pontos consecutivos
+            utils.smallFont.draw(batch, "FPS: " +(int)(1/delta), 0, HEIGHT-136); //FPS
+
         }
 
+        batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
         //desenhar pad pressionado
+        if (!padsAnim[0].isAnimationFinished(timingsAnim[0]))
+            batch.draw(padsAnim[0].getKeyFrame(timingsAnim[0], false), 0f, 0f);
+        if (!padsAnim[1].isAnimationFinished(timingsAnim[1]))
+            batch.draw(padsAnim[1].getKeyFrame(timingsAnim[1], false), 0f, 0f);
+        if (!padsAnim[2].isAnimationFinished(timingsAnim[2]))
+            batch.draw(padsAnim[2].getKeyFrame(timingsAnim[2], false), 0f, 0f);
+        if (!padsAnim[3].isAnimationFinished(timingsAnim[3]))
+            batch.draw(padsAnim[3].getKeyFrame(timingsAnim[3], false), 0f, 0f);
+        if (!padsAnim[4].isAnimationFinished(timingsAnim[4]))
+            batch.draw(padsAnim[4].getKeyFrame(timingsAnim[4], false), 0f, 0f);
+
+
         for (int i = 0; i < 5; i++) {
             if (pressed(Input.Keys.G)) {
                 batch.draw(pads.get(0), 100, 25, 600, 340);
                 pressedPadAction(0);
+                if (timingsAnim[0] > .45)
+                    timingsAnim[0] = 0;
             }
             if (pressed(Input.Keys.H)) {
                 batch.draw(pads.get(1), 100, 25, 600, 340);
                 pressedPadAction(1);
+                if (timingsAnim[1] > .45)
+                    timingsAnim[1] = 0;
             }
             if (pressed(Input.Keys.J)) {
                 batch.draw(pads.get(2), 100, 25, 600, 340);
                 pressedPadAction(2);
+                if (timingsAnim[2] > .45)
+                    timingsAnim[2] = 0;
             }
             if (pressed(Input.Keys.K)) {
                 batch.draw(pads.get(3), 100, 25, 600, 340);
                 pressedPadAction(3);
+                if (timingsAnim[3] > .45)
+                    timingsAnim[3] = 0;
             }
             if (pressed(Input.Keys.L)) {
                 batch.draw(pads.get(4), 100, 25, 600, 340);
                 pressedPadAction(4);
+                if (timingsAnim[4] > .45)
+                    timingsAnim[4] = 0;
             }
         }
+        batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
         //desenhar todos os tiles ativos
         for (int i = 0; i < 5; i++) {
@@ -235,11 +346,13 @@ public class Jogo implements Screen, InputProcessor {
                         batch.draw(tiles[1][(int)(2.9999-d/26)], 310-d/.9f, 340-d*5, 75,36);
                         break;
                     case 2:
-                        batch.draw(tiles[2][(int)(2.9999-d/26)], 363, 340-d*5, 75,36 );
+                        batch.draw(tiles[2][(int)(2.9999-d/26)], 363, 340-d*5, 75,36);
                         break;
                     case 3:
+                        batch.draw(tiles[3][(int)(2.9999-d/26)], 410+d/.8f, 340-d*5, 75,36);
                         break;
                     case 4:
+                        batch.draw(tiles[4][(int)(2.9999-d/26)], 453+d*2.5f, 340-d*5, 75,36);
                         break;
                 }
 
