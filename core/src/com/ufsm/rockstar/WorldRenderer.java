@@ -146,9 +146,11 @@ public class WorldRenderer {
             float y1 = block.getPosition().y + rect.y;
             debugRenderer.setColor(new Color(0.78f+(escurecedor), 0.69f+(escurecedor), 0.545f+(escurecedor*1.5f), 0.4f));
             debugRenderer.rect(x1, y1, rect.width, rect.height);
+
         }
         debugRenderer.setColor(new Color(0.78f+(escurecedor), 0.69f+(escurecedor), 0.545f+(escurecedor*1.5f), 0.4f));
-        debugRenderer.rect(ppuX*0, ppuY*4, 800, 500);
+
+        debugRenderer.rect(0, 4, 800, 500);
 
         debugRenderer.end();
 
