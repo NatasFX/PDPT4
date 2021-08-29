@@ -59,6 +59,7 @@ public class Jogo implements Screen, InputProcessor {
     //animação
     Animation<TextureRegion> bg;
     Animation<Texture>[] padsAnim;
+    Animation<TextureRegion> fireAnim;
     float[] timingsAnim;
 
     //pads
@@ -66,6 +67,9 @@ public class Jogo implements Screen, InputProcessor {
     TextureRegion[][] tiles;
     Texture pad3;
     Texture pad5;
+
+     //lógica de pausa
+    boolean pausa = true;
 
 
     float[][] tilePositions; //primeira coordenada é de 0 a 4, significa os botoes
@@ -96,6 +100,8 @@ public class Jogo implements Screen, InputProcessor {
                 score++;                            //aumenta o score
                 remiss[padNumber] = 1;              //reseta tempo de remiss
                 consecutivos += 1;                  //aumenta pontos consecutivos
+                if (timingsAnim[padNumber] > .45)   //inicia animação
+                    timingsAnim[padNumber] = 0;
             } else {
                 if (remiss[padNumber]++ == 0) {
                     //essa lógica de remiss é para evitar misses enormes ao pressionar o botão
@@ -178,7 +184,7 @@ public class Jogo implements Screen, InputProcessor {
         }
 
         tiles = TextureRegion.split(new Texture(Gdx.files.internal("sprites/tiles.png")),25,12);
-        System.out.println(tiles.length+" lidos");
+
         pad3 = new Texture(Gdx.files.internal("imagens/middle_3.png"));
         pad5 = new Texture(Gdx.files.internal("imagens/outs_5.png"));
 
@@ -198,6 +204,8 @@ public class Jogo implements Screen, InputProcessor {
         Array framesDaAnimacao3 = new Array();
         Array framesDaAnimacao4 = new Array();
 
+        //sim, isso aqui vai fazer o programa consumir 565999 mb de memória
+        //mas se roda na minha máquina de 12gb de ram, roda em todas as outras :)
         for (int i = 0; i < 27; i++) {
             framesDaAnimacao0.add(new Texture(Gdx.files.internal("imagens/0/0_0000" + String.format("%02d", i) + ".png")));
             framesDaAnimacao1.add(new Texture(Gdx.files.internal("imagens/1/1_0000" + String.format("%02d", i) + ".png")));
@@ -213,6 +221,16 @@ public class Jogo implements Screen, InputProcessor {
         padsAnim[2] = new Animation(1f/60f, framesDaAnimacao2);
         padsAnim[3] = new Animation(1f/60f, framesDaAnimacao3);
         padsAnim[4] = new Animation(1f/60f, framesDaAnimacao4);
+
+        Array toUnroll = new Array();
+        TextureRegion[][] frames = TextureRegion.split(new Texture(Gdx.files.internal("sprites/fire.png")), 23, 33);
+
+        //matrix to 1d array
+        for (int i=0; i<1;i++)
+            for (int j=0;j<5;j++)
+                toUnroll.add(frames[i][j]);
+
+        fireAnim = new Animation(1f/24f, toUnroll);
 
         remiss = new int[5];
         timingsAnim = new float[5];
@@ -233,11 +251,18 @@ public class Jogo implements Screen, InputProcessor {
         timingsAnim[3] += delta;
         timingsAnim[4] += delta;
 
+        if (pressed(Input.Keys.ESCAPE)) {
+            pausa = !pausa;
+        }
+
+//        if (pausa) {
+//
+//            return;
+//        }
 
         if (music.getPosition()*1000 > abs(musicSync[musicPos][0]-2050) && musicPos < totalTiles-1) {
             musicPos++;
             if (music.getPosition()*1000 < musicSync[musicPos][0]-2050) {
-                //System.out.println(musicSync.length);
                 //esse 2050 é o offset. por enquanto estático, mas se mudar a velocidade vai mudar isso tbm
                 addTile(musicSync[musicPos][1]);
             }
@@ -283,48 +308,33 @@ public class Jogo implements Screen, InputProcessor {
 
         batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
         //desenhar pad pressionado
-        if (!padsAnim[0].isAnimationFinished(timingsAnim[0]))
-            batch.draw(padsAnim[0].getKeyFrame(timingsAnim[0], false), 0f, 0f);
-        if (!padsAnim[1].isAnimationFinished(timingsAnim[1]))
-            batch.draw(padsAnim[1].getKeyFrame(timingsAnim[1], false), 0f, 0f);
-        if (!padsAnim[2].isAnimationFinished(timingsAnim[2]))
-            batch.draw(padsAnim[2].getKeyFrame(timingsAnim[2], false), 0f, 0f);
-        if (!padsAnim[3].isAnimationFinished(timingsAnim[3]))
-            batch.draw(padsAnim[3].getKeyFrame(timingsAnim[3], false), 0f, 0f);
-        if (!padsAnim[4].isAnimationFinished(timingsAnim[4]))
-            batch.draw(padsAnim[4].getKeyFrame(timingsAnim[4], false), 0f, 0f);
-
 
         for (int i = 0; i < 5; i++) {
+
+            if (!padsAnim[i].isAnimationFinished(timingsAnim[i])) {
+                batch.draw(fireAnim.getKeyFrame(elapsed, true), 95 + 123 * i, 35, 115, 115);
+                batch.draw(padsAnim[i].getKeyFrame(timingsAnim[i], false), 0f, 0f);
+            }
+
             if (pressed(Input.Keys.G)) {
                 batch.draw(pads.get(0), 100, 25, 600, 340);
                 pressedPadAction(0);
-                if (timingsAnim[0] > .45)
-                    timingsAnim[0] = 0;
             }
             if (pressed(Input.Keys.H)) {
                 batch.draw(pads.get(1), 100, 25, 600, 340);
                 pressedPadAction(1);
-                if (timingsAnim[1] > .45)
-                    timingsAnim[1] = 0;
             }
             if (pressed(Input.Keys.J)) {
                 batch.draw(pads.get(2), 100, 25, 600, 340);
                 pressedPadAction(2);
-                if (timingsAnim[2] > .45)
-                    timingsAnim[2] = 0;
             }
             if (pressed(Input.Keys.K)) {
                 batch.draw(pads.get(3), 100, 25, 600, 340);
                 pressedPadAction(3);
-                if (timingsAnim[3] > .45)
-                    timingsAnim[3] = 0;
             }
             if (pressed(Input.Keys.L)) {
                 batch.draw(pads.get(4), 100, 25, 600, 340);
                 pressedPadAction(4);
-                if (timingsAnim[4] > .45)
-                    timingsAnim[4] = 0;
             }
         }
         batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
