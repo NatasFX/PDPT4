@@ -70,7 +70,8 @@ public class Jogo implements Screen, InputProcessor {
     Texture pad5;
 
      //lógica de pausa
-    boolean pausa = true;
+    boolean pausa = false;
+    boolean help = true;
 
 
     float[][] tilePositions; //primeira coordenada é de 0 a 4, significa os botoes
@@ -251,26 +252,43 @@ public class Jogo implements Screen, InputProcessor {
         batch.begin();
         batch.draw(bg.getKeyFrame(elapsed), 0f, 0f);
 
-        if (pausa) {
+        batch.disableBlending();                            //enables shape rendering
+        shape.begin(ShapeRenderer.ShapeType.Filled);
+        shape.setColor(new Color(0,0,0,.7f));
 
-            batch.disableBlending();
-
-            shape.begin(ShapeRenderer.ShapeType.Filled);
-            shape.setColor(new Color(0,0,0,.7f));
+        if (pausa || help) {
             shape.rect(0, 0, 800, 600);
-            shape.end();
-
+            shape.end();                                        //ends shape rendering
             batch.enableBlending();
-            batch.end();
+            batch.end();                                        //to render again, we need to restart batch
 
             batch.begin();
+            if (pausa) {
+                utils.bigFont.draw(batch, "PAUSE", WIDTH/2-utils.textWidth(utils.bigFont.getCache())/2, HEIGHT/2+utils.bigFont.getCapHeight()/2);
+            }
+            else {
+                if (pressed(Input.Keys.SPACE)) help = !help;
 
-            utils.bigFont.draw(batch, "PAUSE", WIDTH/2-utils.textWidth(utils.bigFont.getCache())/2, HEIGHT/2+utils.bigFont.getCapHeight()/2);
+                utils.mediumFont.draw(
+                        batch,
+                        "Para jogar utilize os botões G H J K L",
+                        WIDTH/2-utils.textWidth(utils.mediumFont.getCache())/2,
+                        HEIGHT/2+utils.mediumFont.getCapHeight()/2
+                );
+            }
             batch.end();
-
 
             return;
         }
+
+        shape.triangle(50, 20,250,327, 550, 327);
+        shape.triangle(50, 20, 750, 20, 550, 327);
+
+
+        shape.end();                                        //ends shape rendering
+        batch.enableBlending();
+        batch.end();
+        batch.begin();
 
         if (music.getPosition()*1000 > abs(musicSync[musicPos][0]-2050) && musicPos < totalTiles-1) {
             musicPos++;
@@ -396,7 +414,7 @@ public class Jogo implements Screen, InputProcessor {
     public boolean keyDown(int keycode) {
 
         if (keycode == Input.Keys.ESCAPE) pausa = !pausa;
-        
+
         switch (keycode) {
             case Input.Keys.G:
                 pressedPadAction(0);
