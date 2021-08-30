@@ -265,19 +265,25 @@ public class Jogo implements Screen, InputProcessor {
             batch.end();                                        //to render again, we need to restart batch
 
             batch.begin();
-            if (pausa) {
-                utils.bigFont.draw(batch, "PAUSE", WIDTH/2-utils.textWidth(utils.bigFont.getCache())/2, HEIGHT/2+utils.bigFont.getCapHeight()/2);
-            }
-            else {
+            utils.bigFont.draw(batch, help ? "Bem-vindo jogador!" : "PAUSE", WIDTH/2-utils.textWidth(utils.bigFont.getCache())/2, HEIGHT/2+utils.bigFont.getCapHeight()/2+(help ? 225 : 0));
+
+            if (help) {
+
                 if (pressed(Input.Keys.SPACE)) help = !help;
 
                 utils.mediumFont.draw(
                         batch,
-                        "Para jogar utilize os botões G H J K L",
-                        WIDTH/2-utils.textWidth(utils.mediumFont.getCache())/2,
-                        HEIGHT/2+utils.mediumFont.getCapHeight()/2
+                        "Para jogar utilize os\nbotões G H J K L      \nESC para pausar     \n\nPressione ESPAÇO para continuar            ",
+//                        WIDTH/2-utils.textWidth(utils.mediumFont.getCache())/2,
+                        0,
+                        HEIGHT/2+utils.mediumFont.getCapHeight()/2+100,
+                        600,
+                        400,
+                        true
                 );
+
             }
+
             batch.end();
 
             return;
