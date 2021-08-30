@@ -27,6 +27,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.concurrent.ThreadLocalRandom;
 
 
 public class Jogo implements Screen, InputProcessor {
@@ -36,6 +37,7 @@ public class Jogo implements Screen, InputProcessor {
     private Camera camera;      //the camera to gdx make their projections
     private Viewport viewport;  //our window to display the game
     private SpriteBatch batch;  //sprite batches
+    ShapeRenderer shape;
     float elapsed = 0;
 
     Color c; //Background color
@@ -45,8 +47,7 @@ public class Jogo implements Screen, InputProcessor {
     int[][] musicSync;
     int musicPos = 0;
     int totalTiles;
-    int[] remiss;
-
+    Sound[] wrongNotes;
 
     //pontos
     private int score = 0;
@@ -58,7 +59,7 @@ public class Jogo implements Screen, InputProcessor {
 
     //animação
     Animation<TextureRegion> bg;
-    Animation<Texture>[] padsAnim;
+    Animation<TextureRegion>[] padsAnim;
     Animation<TextureRegion> fireAnim;
     float[] timingsAnim;
 
@@ -69,7 +70,8 @@ public class Jogo implements Screen, InputProcessor {
     Texture pad5;
 
      //lógica de pausa
-    boolean pausa = true;
+    boolean pausa = false;
+    boolean help = true;
 
 
     float[][] tilePositions; //primeira coordenada é de 0 a 4, significa os botoes
@@ -92,27 +94,28 @@ public class Jogo implements Screen, InputProcessor {
 
     private void pressedPadAction(int padNumber) {
 
+        boolean missed = false;
         for (int j = 0; j < tilePositions[padNumber].length; j++) {
             float f = tilePositions[padNumber][j];
 
             if (f > 50 && f < 65) {
                 tilePositions[padNumber][j] = 0;    //limpa o tile
                 score++;                            //aumenta o score
-                remiss[padNumber] = 1;              //reseta tempo de remiss
                 consecutivos += 1;                  //aumenta pontos consecutivos
                 if (timingsAnim[padNumber] > .45)   //inicia animação
                     timingsAnim[padNumber] = 0;
-            } else {
-                if (remiss[padNumber]++ == 0) {
-                    //essa lógica de remiss é para evitar misses enormes ao pressionar o botão
-                    missedTiles++;
-                    consecutivos = 0;
-                } else if (remiss[padNumber] < 3500)
-                    remiss[padNumber]++;
-                else
-                    remiss[padNumber] = 0;
-            }
+                missed = false;
+                break;
+            } else if (!missed)
+                missed = true;
         }
+
+        if (missed) {
+            missedTiles++;
+            consecutivos = 0;
+            wrongNotes[ThreadLocalRandom.current().nextInt(0, 4 + 1)].play();
+        }
+
     }
 
     private void advanceTiles() {
@@ -198,42 +201,39 @@ public class Jogo implements Screen, InputProcessor {
 
         bg = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("imagens/bg.gif").read());
 
-        Array framesDaAnimacao0 = new Array();
-        Array framesDaAnimacao1 = new Array();
-        Array framesDaAnimacao2 = new Array();
-        Array framesDaAnimacao3 = new Array();
-        Array framesDaAnimacao4 = new Array();
+        Array framesDaAnimacao = new Array();
 
-        //sim, isso aqui vai fazer o programa consumir 565999 mb de memória
-        //mas se roda na minha máquina de 12gb de ram, roda em todas as outras :)
-        for (int i = 0; i < 27; i++) {
-            framesDaAnimacao0.add(new Texture(Gdx.files.internal("imagens/0/0_0000" + String.format("%02d", i) + ".png")));
-            framesDaAnimacao1.add(new Texture(Gdx.files.internal("imagens/1/1_0000" + String.format("%02d", i) + ".png")));
-            framesDaAnimacao2.add(new Texture(Gdx.files.internal("imagens/2/2_0000" + String.format("%02d", i) + ".png")));
-            framesDaAnimacao3.add(new Texture(Gdx.files.internal("imagens/3/3_0000" + String.format("%02d", i) + ".png")));
-            framesDaAnimacao4.add(new Texture(Gdx.files.internal("imagens/4/4_0000" + String.format("%02d", i) + ".png")));
+
+        wrongNotes = new Sound[5];
+        padsAnim = new Animation[5];
+        for (int ii = 0; ii < 5; ii++) {
+            TextureRegion[][] frames = TextureRegion.split(new Texture(Gdx.files.internal("sprites/"+ii+".png")),800,600);
+
+            //matrix to 1d array
+            for (int i=0; i<5;i++)
+                for (int j=0;j<5;j++)
+                    framesDaAnimacao.add(frames[i][j]);
+
+            padsAnim[ii] = new Animation(1f/60f, framesDaAnimacao);
+            framesDaAnimacao.clear();
+
+            wrongNotes[ii] = Gdx.audio.newSound(Gdx.files.internal("music/wrongnote_"+ii+".mp3"));
         }
 
-        padsAnim = new Animation[5];
 
-        padsAnim[0] = new Animation(1f/60f, framesDaAnimacao0);
-        padsAnim[1] = new Animation(1f/60f, framesDaAnimacao1);
-        padsAnim[2] = new Animation(1f/60f, framesDaAnimacao2);
-        padsAnim[3] = new Animation(1f/60f, framesDaAnimacao3);
-        padsAnim[4] = new Animation(1f/60f, framesDaAnimacao4);
-
-        Array toUnroll = new Array();
         TextureRegion[][] frames = TextureRegion.split(new Texture(Gdx.files.internal("sprites/fire.png")), 23, 33);
 
         //matrix to 1d array
         for (int i=0; i<1;i++)
             for (int j=0;j<5;j++)
-                toUnroll.add(frames[i][j]);
+                framesDaAnimacao.add(frames[i][j]);
 
-        fireAnim = new Animation(1f/24f, toUnroll);
+        fireAnim = new Animation(1f/24f, framesDaAnimacao);
 
-        remiss = new int[5];
         timingsAnim = new float[5];
+
+        shape = new ShapeRenderer();
+
     }
 
     @Override
@@ -251,14 +251,46 @@ public class Jogo implements Screen, InputProcessor {
         timingsAnim[3] += delta;
         timingsAnim[4] += delta;
 
-        if (pressed(Input.Keys.ESCAPE)) {
-            pausa = !pausa;
+        batch.begin();
+        batch.draw(bg.getKeyFrame(elapsed), 0f, 0f);
+
+        batch.disableBlending();                            //enables shape rendering
+        shape.begin(ShapeRenderer.ShapeType.Filled);
+        shape.setColor(new Color(0,0,0,.7f));
+
+        if (pausa || help) {
+            shape.rect(0, 0, 800, 600);
+            shape.end();                                        //ends shape rendering
+            batch.enableBlending();
+            batch.end();                                        //to render again, we need to restart batch
+
+            batch.begin();
+            if (pausa) {
+                utils.bigFont.draw(batch, "PAUSE", WIDTH/2-utils.textWidth(utils.bigFont.getCache())/2, HEIGHT/2+utils.bigFont.getCapHeight()/2);
+            }
+            else {
+                if (pressed(Input.Keys.SPACE)) help = !help;
+
+                utils.mediumFont.draw(
+                        batch,
+                        "Para jogar utilize os botões G H J K L",
+                        WIDTH/2-utils.textWidth(utils.mediumFont.getCache())/2,
+                        HEIGHT/2+utils.mediumFont.getCapHeight()/2
+                );
+            }
+            batch.end();
+
+            return;
         }
 
-//        if (pausa) {
-//
-//            return;
-//        }
+        shape.triangle(50, 20,250,327, 550, 327);
+        shape.triangle(50, 20, 750, 20, 550, 327);
+
+
+        shape.end();                                        //ends shape rendering
+        batch.enableBlending();
+        batch.end();
+        batch.begin();
 
         if (music.getPosition()*1000 > abs(musicSync[musicPos][0]-2050) && musicPos < totalTiles-1) {
             musicPos++;
@@ -269,9 +301,6 @@ public class Jogo implements Screen, InputProcessor {
         }
 
         advanceTiles();
-
-        batch.begin();
-        batch.draw(bg.getKeyFrame(elapsed), 0f, 0f);
 
 
         batch.draw(pad5, 100, 25, 600, 340);
@@ -306,37 +335,23 @@ public class Jogo implements Screen, InputProcessor {
 
         }
 
+        //esse código é para desenhar corretamente os pngs. ele desenha premultiplied alpha
         batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
-        //desenhar pad pressionado
-
+        //desenhar animação pad pressionado
         for (int i = 0; i < 5; i++) {
-
             if (!padsAnim[i].isAnimationFinished(timingsAnim[i])) {
                 batch.draw(fireAnim.getKeyFrame(elapsed, true), 95 + 123 * i, 35, 115, 115);
                 batch.draw(padsAnim[i].getKeyFrame(timingsAnim[i], false), 0f, 0f);
             }
-
-            if (pressed(Input.Keys.G)) {
-                batch.draw(pads.get(0), 100, 25, 600, 340);
-                pressedPadAction(0);
-            }
-            if (pressed(Input.Keys.H)) {
-                batch.draw(pads.get(1), 100, 25, 600, 340);
-                pressedPadAction(1);
-            }
-            if (pressed(Input.Keys.J)) {
-                batch.draw(pads.get(2), 100, 25, 600, 340);
-                pressedPadAction(2);
-            }
-            if (pressed(Input.Keys.K)) {
-                batch.draw(pads.get(3), 100, 25, 600, 340);
-                pressedPadAction(3);
-            }
-            if (pressed(Input.Keys.L)) {
-                batch.draw(pads.get(4), 100, 25, 600, 340);
-                pressedPadAction(4);
-            }
         }
+        //desenhar glow roxo dos pads
+        if (pressed(Input.Keys.G)) batch.draw(pads.get(0), 100, 25, 600, 340);
+        if (pressed(Input.Keys.H)) batch.draw(pads.get(1), 100, 25, 600, 340);
+        if (pressed(Input.Keys.J)) batch.draw(pads.get(2), 100, 25, 600, 340);
+        if (pressed(Input.Keys.K)) batch.draw(pads.get(3), 100, 25, 600, 340);
+        if (pressed(Input.Keys.L)) batch.draw(pads.get(4), 100, 25, 600, 340);
+
+        //voltar ao blend mode normal
         batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
         //desenhar todos os tiles ativos
@@ -365,7 +380,6 @@ public class Jogo implements Screen, InputProcessor {
                         batch.draw(tiles[4][(int)(2.9999-d/26)], 453+d*2.5f, 340-d*5, 75,36);
                         break;
                 }
-
             }
         }
 
@@ -400,7 +414,26 @@ public class Jogo implements Screen, InputProcessor {
 
     @Override
     public boolean keyDown(int keycode) {
-        //System.out.println(keycode);
+
+        if (keycode == Input.Keys.ESCAPE) pausa = !pausa;
+
+        switch (keycode) {
+            case Input.Keys.G:
+                pressedPadAction(0);
+                break;
+            case Input.Keys.H:
+                pressedPadAction(1);
+                break;
+            case Input.Keys.J:
+                pressedPadAction(2);
+                break;
+            case Input.Keys.K:
+                pressedPadAction(3);
+                break;
+            case Input.Keys.L:
+                pressedPadAction(4);
+                break;
+        }
         return false;
     }
 
