@@ -27,6 +27,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.concurrent.ThreadLocalRandom;
 
 
 public class Jogo implements Screen, InputProcessor {
@@ -46,6 +47,7 @@ public class Jogo implements Screen, InputProcessor {
     int[][] musicSync;
     int musicPos = 0;
     int totalTiles;
+    Sound[] wrongNotes;
 
     //pontos
     private int score = 0;
@@ -202,6 +204,7 @@ public class Jogo implements Screen, InputProcessor {
         Array framesDaAnimacao = new Array();
 
 
+        wrongNotes = new Sound[5];
         padsAnim = new Animation[5];
         for (int ii = 0; ii < 5; ii++) {
             TextureRegion[][] frames = TextureRegion.split(new Texture(Gdx.files.internal("sprites/"+ii+".png")),800,600);
@@ -213,6 +216,8 @@ public class Jogo implements Screen, InputProcessor {
 
             padsAnim[ii] = new Animation(1f/60f, framesDaAnimacao);
             framesDaAnimacao.clear();
+
+            wrongNotes[ii] = Gdx.audio.newSound(Gdx.files.internal("music/wrongnote_"+ii+".mp3"));
         }
 
 
