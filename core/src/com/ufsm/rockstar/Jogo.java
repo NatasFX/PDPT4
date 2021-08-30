@@ -36,6 +36,7 @@ public class Jogo implements Screen, InputProcessor {
     private Camera camera;      //the camera to gdx make their projections
     private Viewport viewport;  //our window to display the game
     private SpriteBatch batch;  //sprite batches
+    ShapeRenderer shape;
     float elapsed = 0;
 
     Color c; //Background color
@@ -228,6 +229,8 @@ public class Jogo implements Screen, InputProcessor {
 
         remiss = new int[5];
         timingsAnim = new float[5];
+
+        shape = new ShapeRenderer();
     }
 
     @Override
@@ -245,14 +248,29 @@ public class Jogo implements Screen, InputProcessor {
         timingsAnim[3] += delta;
         timingsAnim[4] += delta;
 
-        if (pressed(Input.Keys.ESCAPE)) {
-            pausa = !pausa;
-        }
+        batch.begin();
+        batch.draw(bg.getKeyFrame(elapsed), 0f, 0f);
 
-//        if (pausa) {
-//
-//            return;
-//        }
+        if (pausa) {
+
+            batch.disableBlending();
+
+            shape.begin(ShapeRenderer.ShapeType.Filled);
+            shape.setColor(new Color(0,0,0,.7f));
+            shape.rect(0, 0, 800, 600);
+            shape.end();
+
+            batch.enableBlending();
+            batch.end();
+
+            batch.begin();
+
+            utils.bigFont.draw(batch, "PAUSE", WIDTH/2-utils.textWidth(utils.bigFont.getCache())/2, HEIGHT/2+utils.bigFont.getCapHeight()/2);
+            batch.end();
+
+
+            return;
+        }
 
         if (music.getPosition()*1000 > abs(musicSync[musicPos][0]-2050) && musicPos < totalTiles-1) {
             musicPos++;
@@ -263,9 +281,6 @@ public class Jogo implements Screen, InputProcessor {
         }
 
         advanceTiles();
-
-        batch.begin();
-        batch.draw(bg.getKeyFrame(elapsed), 0f, 0f);
 
 
         batch.draw(pad5, 100, 25, 600, 340);
@@ -379,6 +394,9 @@ public class Jogo implements Screen, InputProcessor {
 
     @Override
     public boolean keyDown(int keycode) {
+
+        if (keycode == Input.Keys.ESCAPE) pausa = !pausa;
+        
         switch (keycode) {
             case Input.Keys.G:
                 pressedPadAction(0);
