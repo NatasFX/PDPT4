@@ -44,6 +44,7 @@ public class WorldRenderer {
     private Texture playerTexture;
     private Texture gramaTexture;
     private Texture city;
+    private Texture gameBuilding;
     private Texture terraTexture;
     private Texture CantoDTexture;
     private Texture CantoETexture;
@@ -86,13 +87,13 @@ public class WorldRenderer {
     }
 
 
-
     private void loadTextures()
     {
 
         playerTexture = new Texture(Gdx.files.internal("sprites/Player.png"));
         criaAnimacao();                                                             // ESSES 2 ANIMAÇÃO
         city = new Texture(Gdx.files.internal("imagens/16617.jpg"));
+        gameBuilding = new Texture(Gdx.files.internal("imagens/3480.png"));
         gramaTexture = new Texture(Gdx.files.internal("imagens/Grama.png"));
         terraTexture = new Texture(Gdx.files.internal("imagens/Terra.png"));
         CantoDTexture = new Texture(Gdx.files.internal("imagens/CantoDireito.png"));
@@ -123,12 +124,18 @@ public class WorldRenderer {
         tempoDecorrido+= Gdx.graphics.getDeltaTime();           ///animação
 
         spriteBatch.begin();
+
         spriteBatch.draw(city,0,4*ppuY-10,800,500);
         drawBlocks();
         if(debug) {
             font.draw(spriteBatch, fase+"" ,400,500);
         }
+        if (fase==0)
+        {
+            spriteBatch.draw(gameBuilding,11*ppuX,4*ppuY-10,320, 240);
+        }
         drawPlayer();
+
         spriteBatch.end();
         drawBackground();
         if (debug)

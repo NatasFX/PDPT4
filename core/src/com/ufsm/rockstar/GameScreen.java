@@ -85,6 +85,8 @@ public class GameScreen implements Screen, InputProcessor
         if (keycode == Keys.RIGHT)
             controller.rightPressed();
 
+        if (keycode == Keys.ENTER && world.getPlayer().getPosition().x>11)
+            jogo.setScreen(new Jogo(jogo));
         return true;
     }
 
