@@ -46,8 +46,6 @@ public class Jogo implements Screen, InputProcessor {
     int[][] musicSync;
     int musicPos = 0;
     int totalTiles;
-    int[] remiss;
-
 
     //pontos
     private int score = 0;
@@ -94,29 +92,28 @@ public class Jogo implements Screen, InputProcessor {
 
     private void pressedPadAction(int padNumber) {
 
+        boolean missed = false;
         for (int j = 0; j < tilePositions[padNumber].length; j++) {
             float f = tilePositions[padNumber][j];
 
             if (f > 50 && f < 65) {
                 tilePositions[padNumber][j] = 0;    //limpa o tile
                 score++;                            //aumenta o score
-                remiss[padNumber] = 1;              //reseta tempo de remiss
                 consecutivos += 1;                  //aumenta pontos consecutivos
                 if (timingsAnim[padNumber] > .45)   //inicia animação
                     timingsAnim[padNumber] = 0;
-                return;                             //1 tile por pressionamento
-            } else {
-                if (remiss[padNumber]++ == 0) {
-                    //essa lógica de remiss é para evitar misses enormes ao segurar o botão (60 misses por segundo)
-                    missedTiles++;
-                    consecutivos = 0;
-
-                } else if (remiss[padNumber] < 120)
-                    remiss[padNumber]++;
-                else
-                    remiss[padNumber] = 0;
-            }
+                missed = false;
+                break;
+            } else if (!missed)
+                missed = true;
         }
+
+        if (missed) {
+            missedTiles++;
+            consecutivos = 0;
+            wrongNotes[ThreadLocalRandom.current().nextInt(0, 4 + 1)].play();
+        }
+
     }
 
     private void advanceTiles() {
@@ -228,10 +225,10 @@ public class Jogo implements Screen, InputProcessor {
 
         fireAnim = new Animation(1f/24f, framesDaAnimacao);
 
-        remiss = new int[5];
         timingsAnim = new float[5];
 
         shape = new ShapeRenderer();
+
     }
 
     @Override
