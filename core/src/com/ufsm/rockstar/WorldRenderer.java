@@ -233,3 +233,4 @@ public class WorldRenderer {
 // rockista dançarino https://www.spriters-resource.com/fullview/18936/
 //tileset que usei https://akumalab.itch.io/16x16-platform-rpg-tileset
 //https://www.pngwing.com/pt/free-png-xkfra player
+// link do predio https://www.freepik.com/free-vector/building-icons_1528904.htm#page=9&query=2d%20building&position=27
