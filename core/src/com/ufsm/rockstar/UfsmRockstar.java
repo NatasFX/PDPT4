@@ -7,8 +7,7 @@ import com.ufsm.rockstar.GameScreen;
 public class UfsmRockstar extends Game {
 	@Override
 	public void create() {
-        setScreen(new Jogo(this));
-//		setScreen(new WelcomeScreen(this));
+		setScreen(new WelcomeScreen(this));
 	}
 
 	@Override
