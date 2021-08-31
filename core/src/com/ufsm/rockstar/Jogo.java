@@ -267,14 +267,10 @@ public class Jogo implements Screen, InputProcessor {
             batch.begin();
             utils.bigFont.draw(batch, help ? "Bem-vindo jogador!" : "PAUSE", WIDTH/2-utils.textWidth(utils.bigFont.getCache())/2, HEIGHT/2+utils.bigFont.getCapHeight()/2+(help ? 225 : 0));
 
-            if (help) {
-
-                if (pressed(Input.Keys.SPACE)) help = !help;
-
+            if (help)
                 utils.mediumFont.draw(
                         batch,
-                        "Para jogar utilize os\nbotões G H J K L      \nESC para pausar     \n\nPressione ESPAÇO para continuar            ",
-//                        WIDTH/2-utils.textWidth(utils.mediumFont.getCache())/2,
+                        "Para jogar utilize os\nbotões   G H J K L    \nESC para pausar     \n\nPressione ESPAÇO para continuar            ",
                         0,
                         HEIGHT/2+utils.mediumFont.getCapHeight()/2+100,
                         600,
@@ -282,19 +278,54 @@ public class Jogo implements Screen, InputProcessor {
                         true
                 );
 
-            }
-
             batch.end();
 
             return;
         }
 
+        //debaixo dos pads
         shape.triangle(50, 20,250,327, 550, 327);
         shape.triangle(50, 20, 750, 20, 550, 327);
 
+        shape.rect(WIDTH-190, 275,170,275);
 
         shape.end();                                        //ends shape rendering
         batch.enableBlending();
+
+        batch.end();
+        batch.begin();
+
+        utils.smallFont.draw(
+                batch,
+                "TAREFAS",
+                WIDTH-150,
+                545
+
+        );
+
+        utils.smallerFont.draw(
+                batch,
+                "\n\n75 pts  - Cálculo de Riff\n150 pts - Análise do Rock\n240 pts - Intro. ao Rock\n300 pts - Overdrive 1\n375 pts - Vocais\n400 pts - Mastering Rock\n450 pts - TCC",
+                WIDTH-185,
+                535,
+                165,
+                -1,
+                true
+        );
+
+        batch.disableBlending();                            //enables shape rendering
+        shape.begin(ShapeRenderer.ShapeType.Filled);
+        shape.setColor(Color.RED);
+
+        for (int i = 0; i < 7; i++) {
+            if (score < new int[]{75, 150, 240, 300, 375, 400, 450}[i]) break;
+
+            shape.line(WIDTH-185, 480 - i*22, WIDTH-40, 490 - i*22);
+        }
+
+        shape.end();
+        batch.enableBlending();
+
         batch.end();
         batch.begin();
 
@@ -308,15 +339,22 @@ public class Jogo implements Screen, InputProcessor {
 
         advanceTiles();
 
+        //desenho do aviso de exame
+        if ((int)(score/((score+missedTiles == 0f) ? 1f : score+missedTiles)*100) < 70 && score+missedTiles > 25 && music.isPlaying())
+            utils.smallFont.draw(batch, "você vai pegar exame!!", 275, HEIGHT-6);
 
         batch.draw(pad5, 100, 25, 600, 340);
         batch.draw(pad3, 100, 25, 600, 340);
 
-        if (pressed(Input.Keys.SPACE) && !music.isPlaying()) {  //usuário iniciou a música
-            music.play();
-            startGame();
-        } else if (!music.isPlaying()) {    //mostrar texto para usuário apertar espaço
+
+        if (!music.isPlaying() && score == 0) {    //mostrar texto para usuário apertar espaço
             fontCache.draw(batch);
+        } else if (!music.isPlaying() && score != 0) {
+            font.draw(batch, "APERTE ESPAÇO P/ jogar dnv", 125, 325);
+            if ((int)(score/((score+missedTiles == 0f) ? 1f : score+missedTiles)*100) > 70) {
+                font.draw(batch, "você passou!!!", 200, 390);
+
+            }
         } else {        //usuário está jogando
             utils.smallFont.draw(batch, "Pontos: " + score, 0, HEIGHT); //total de pontos
             utils.smallFont.draw(batch, "Perdidos: " + missedTiles, 0, HEIGHT-27); //tiles perdidos
@@ -421,7 +459,13 @@ public class Jogo implements Screen, InputProcessor {
     @Override
     public boolean keyDown(int keycode) {
 
-        if (keycode == Input.Keys.ESCAPE) pausa = !pausa;
+        if (!music.isPlaying() && keycode == Input.Keys.SPACE && !help) {
+            music.play();
+            startGame();
+        }
+
+        if (help && pressed(Input.Keys.SPACE)) help = !help;
+        else if (keycode == Input.Keys.ESCAPE) pausa = !pausa;
 
         switch (keycode) {
             case Input.Keys.G:
@@ -450,7 +494,6 @@ public class Jogo implements Screen, InputProcessor {
 
     @Override
     public boolean keyTyped(char character) {
-        //System.out.println(Character.getNumericValue(character));
         return false;
     }
 
