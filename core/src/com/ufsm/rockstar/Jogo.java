@@ -283,6 +283,7 @@ public class Jogo implements Screen, InputProcessor {
             return;
         }
 
+
         //debaixo dos pads
         shape.triangle(50, 20,250,327, 550, 327);
         shape.triangle(50, 20, 750, 20, 550, 327);
@@ -305,7 +306,7 @@ public class Jogo implements Screen, InputProcessor {
 
         utils.smallerFont.draw(
                 batch,
-                "\n\n75 pts  - Cálculo de Riff\n150 pts - Análise do Rock\n240 pts - Intro. ao Rock\n300 pts - Overdrive 1\n375 pts - Vocais\n400 pts - Mastering Rock\n450 pts - TCC",
+                "\n\n75 pts  - Cálculo de Riff\n150 pts - Análise do Rock\n240 pts - Intro. ao Rock\n300 pts - Overdrive 1\n375 pts - Vocais\n400 pts - Mastering Rock\n438 pts - TCC",
                 WIDTH-185,
                 535,
                 165,
@@ -318,7 +319,7 @@ public class Jogo implements Screen, InputProcessor {
         shape.setColor(Color.RED);
 
         for (int i = 0; i < 7; i++) {
-            if (score < new int[]{75, 150, 240, 300, 375, 400, 450}[i]) break;
+            if (score < new int[]{75, 150, 240, 300, 375, 400, 438}[i]) break;
 
             shape.line(WIDTH-185, 480 - i*22, WIDTH-40, 490 - i*22);
         }
