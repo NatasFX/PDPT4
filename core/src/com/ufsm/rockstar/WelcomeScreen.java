@@ -270,9 +270,10 @@ public class WelcomeScreen implements Screen {
             music.setVolume(.07f);
             showDancarino = true;
             littleFontCache = utils.smallFont.newFontCache();
-            new textWriter("Bem-vindo jogador!\n\nNesse jogo você é um estudante, que pretende entrar na faculdade do ROCK, e para isso você precisa passar no vestibular do rock.\n" +
-                    "\nPressione SPACE para o tutorial (recomendado)\nPressione ENTER para ir para o jogo."
-                    , littleFontCache).start();
+            txt = new textWriter("Bem-vindo jogador!\n\nNesse jogo você é um estudante, que pretende entrar na faculdade do ROCK, e para isso você precisa passar no vestibular do rock.\n" +
+                    "\n\nPressione ENTER para ir para o jogo."
+                    , littleFontCache);
+            txt.start();
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.F9)) {
@@ -282,10 +283,7 @@ public class WelcomeScreen implements Screen {
         if (Gdx.input.isKeyPressed(Input.Keys.ENTER)) {
             jogo.setScreen(new GameScreen(jogo));           //se o cara pressionar o enter ele vai para o jogo pulando o tutorial
             this.dispose();
-        } else if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-            //jogo.setScreen(new TutorialScreen(jogo));
         }
-
     }
 
     @Override
