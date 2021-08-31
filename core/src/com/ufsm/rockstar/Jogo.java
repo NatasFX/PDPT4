@@ -199,20 +199,30 @@ public class Jogo implements Screen, InputProcessor {
         fontCache.setText("Aperte ESPAÇO para tocar a música", 0,0);
         fontCache.translate(WIDTH/2-utils.textWidth(fontCache)/2, HEIGHT/2+font.getCapHeight()/2);
 
-        bg = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("imagens/bg.gif").read());
 
         Array framesDaAnimacao = new Array();
 
+        TextureRegion[][] framess = TextureRegion.split(new Texture(Gdx.files.internal("sprites/bg.png")),800,600);
+
+        //matrix to 1d array
+        for (int i=0; i<7;i++)
+            for (int j=0;j<6;j++)
+                if (!(i == 6 && j == 5))
+                    framesDaAnimacao.add(framess[i][j]);
+
+        bg = new Animation(1f/33f, framesDaAnimacao);
+
+        framesDaAnimacao.clear();
 
         wrongNotes = new Sound[5];
         padsAnim = new Animation[5];
         for (int ii = 0; ii < 5; ii++) {
-            TextureRegion[][] frames = TextureRegion.split(new Texture(Gdx.files.internal("sprites/"+ii+".png")),800,600);
+            TextureRegion[][] frames1 = TextureRegion.split(new Texture(Gdx.files.internal("sprites/"+ii+".png")),800,600);
 
             //matrix to 1d array
             for (int i=0; i<5;i++)
                 for (int j=0;j<5;j++)
-                    framesDaAnimacao.add(frames[i][j]);
+                    framesDaAnimacao.add(frames1[i][j]);
 
             padsAnim[ii] = new Animation(1f/60f, framesDaAnimacao);
             framesDaAnimacao.clear();
@@ -252,7 +262,7 @@ public class Jogo implements Screen, InputProcessor {
         timingsAnim[4] += delta;
 
         batch.begin();
-        batch.draw(bg.getKeyFrame(elapsed), 0f, 0f);
+        batch.draw(bg.getKeyFrame(elapsed, true), 0f, 0f);
 
         batch.disableBlending();                            //enables shape rendering
         shape.begin(ShapeRenderer.ShapeType.Filled);
