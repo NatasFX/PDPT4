@@ -316,5 +316,7 @@ public class WelcomeScreen implements Screen {
     public void dispose() {
         music.dispose();
         shape.dispose();
+        batch.dispose();
+        txt.interrupt();
     }
 }
