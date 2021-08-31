@@ -103,23 +103,25 @@ class textWriter extends Thread {
         snd = Gdx.audio.newSound(Gdx.files.internal("music/type.wav"));
     }
 
-    private void dormir(long n) {
+    private boolean dormir(long n) {
         try {
             this.sleep(n);
-        } catch (InterruptedException ex) {}
+            return false;
+        } catch (InterruptedException ex) {snd.dispose(); return true;}
     }
 
     @Override
     public void run() {
         for (char r: str.toCharArray()) {
-            dormir(r == ' ' ? 200 : 80);
+            if (dormir(r == ' ' ? 200 : 80)) {
+                break;
+            }
             System.out.println(""+r);
             tmp = tmp + r;
             cache.setText(tmp, 75, 525, 0, tmp.length(), 675, 75, true);
             snd.play(1.0f);
         }
-        snd.dispose();
-        this.interrupt();
+
     }
 
 }
@@ -163,6 +165,7 @@ public class WelcomeScreen implements Screen {
     public static final int WIDTH = 800;
     public static final int HEIGHT = 600;
 
+    Thread txt;
 
     public static void rewriteText(String text) {
         fontCache.setText(text, 0, 0);
@@ -220,6 +223,7 @@ public class WelcomeScreen implements Screen {
         animacao = utils.loadDancarino();
 
         new textFader(this, 12000, 50, "Clique para continuar").start();
+
 
         shape = new ShapeRenderer();
     }
