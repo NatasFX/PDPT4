@@ -182,11 +182,15 @@ public class WorldRenderer {
     {
         Player player = world.getPlayer();
 
+
         if (player.getState() == Player.State.WALKING)
             spriteBatch.draw((TextureRegion) animacao.getKeyFrame(tempoDecorrido,true), player.getPosition().x * ppuX, player.getPosition().y * ppuY, player.SIZE * ppuX, player.SIZE * ppuY);
         else
             spriteBatch.draw(playerParado, player.getPosition().x * ppuX, player.getPosition().y * ppuY, player.SIZE * ppuX, player.SIZE * ppuY);
 
+        if (player.getPosition().x*ppuX > 360 && fase == 0) {
+            utils.mediumFont.draw(spriteBatch, "aperte ENTER para entrar na fase", 100, 100);
+        }
         if (player.getPosition().x*ppuX <= 0 && fase == 0)
             player.setPosition(0);
         else if (player.getPosition().x*ppuX <= -40 && fase > 0)             // verifica se o personagem sai da tela pela esquerda
